@@ -82,7 +82,15 @@ This repository now includes a minimal [Phaser.js](https://phaser.io) prototype 
    npm start
    ```
    This runs **live-server** from the project root and automatically opens
-   `public/index.html` in your browser so the Phaser script can load from
+   `public/index.html` in your browser. Phaser is loaded from a CDN so the
+   page works even when deploying to hosts like Vercel that do not serve
    `node_modules`.
 
 You should see a window with a red square rendered by the Phaser game loop. This serves as the project foundation for future gameplay features.
+
+## Deploying to Vercel
+
+The `public` folder can be deployed directly as a static site. Because the
+Phaser library is loaded from a CDN, you don't need to include `node_modules`
+in your deployment. Simply configure Vercel to serve the `public` directory and
+the prototype should run without 404 errors.
