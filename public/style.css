@@ -159,14 +159,17 @@ canvas {
   margin-bottom: 10px;
   border: 2px solid #fff;
 }
-#combat-controls {
+#combat-container #combat-controls {
   text-align: center;
   margin-top: 20px;
 }
-#combat-controls button {
+#combat-container #combat-controls button {
   margin: 0 5px;
 }
-#combat-message {
+#combat-container #combat-controls #turn-indicator {
+  margin-top: 10px;
+}
+#combat-container #combat-message {
   margin-top: 10px;
   text-align: center;
 }

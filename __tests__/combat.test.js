@@ -20,6 +20,7 @@ beforeEach(() => {
       <div id="combat-controls">
         <button id="attack-btn">Attack</button>
         <button id="defend-btn">Defend</button>
+        <div id="turn-indicator"></div>
         <div id="combat-message"></div>
       </div>
     </div>`;
@@ -32,6 +33,7 @@ test('enterBattle shows combat container with stats', () => {
   expect(container.style.display).toBe('block');
   expect(document.getElementById('hero-stats').textContent).toBe(`Hero HP: ${heroStats.hp}`);
   expect(document.getElementById('monster-stats').textContent).toBe('Monster HP: 30');
+  expect(document.getElementById('turn-indicator').textContent).toBe('Player Turn');
 });
 
 test('attackAction damages monster and hero takes damage', () => {
@@ -41,6 +43,7 @@ test('attackAction damages monster and hero takes damage', () => {
   expect(monster.stats.hp).toBe(20);
   expect(heroStats.hp).toBe(95);
   expect(document.getElementById('combat-message').textContent).toContain('Monster attacks');
+  expect(document.getElementById('turn-indicator').textContent).toBe('Player Turn');
 });
 
 test('defendAction reduces incoming damage', () => {
@@ -49,4 +52,5 @@ test('defendAction reduces incoming damage', () => {
   defendAction();
   expect(heroStats.hp).toBe(98);
   expect(document.getElementById('combat-message').textContent).toContain('Monster attacks');
+  expect(document.getElementById('turn-indicator').textContent).toBe('Player Turn');
 });

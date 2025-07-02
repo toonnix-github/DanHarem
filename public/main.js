@@ -51,10 +51,31 @@ let wasd;
 let monsters = [];
 let inBattle = false;
 let currentMonster = null;
+let turn = 'player';
 const monsterSpawns = [
   { x: 5, y: 5 },
   { x: 10, y: 8 }
 ];
+
+function updateTurnIndicator() {
+  const indicator = document.getElementById('turn-indicator');
+  if (indicator) {
+    indicator.textContent = turn === 'player' ? 'Player Turn' : 'Enemy Turn';
+  }
+}
+
+function endBattle(result) {
+  const combat = document.getElementById('combat-container');
+  if (combat) combat.style.display = 'none';
+  inBattle = false;
+  if (currentMonster) {
+    monsters = monsters.filter(m => m !== currentMonster);
+  }
+  currentMonster = null;
+  turn = 'player';
+  updateTurnIndicator();
+  if (result) setCombatMessage(result);
+}
 
 function spawnMonsters(scene) {
   monsters = monsterSpawns.map(pos => {
@@ -76,11 +97,13 @@ function enterBattle(monster) {
   const monsterEl = document.getElementById('monster-stats');
   currentMonster = monster;
   heroStats.defending = false;
+  turn = 'player';
   if (heroEl) heroEl.textContent = `Hero HP: ${heroStats.hp}`;
   if (monsterEl) monsterEl.textContent = `Monster HP: ${monster.stats.hp}`;
   combat.style.display = 'block';
   const msgEl = document.getElementById('combat-message');
   if (msgEl) msgEl.textContent = 'Battle started!';
+  updateTurnIndicator();
 }
 
 function updateCombatDisplay() {
@@ -108,25 +131,40 @@ function monsterTurn() {
 }
 
 function attackAction() {
-  if (!currentMonster) return;
+  if (!currentMonster || turn !== 'player') return;
   currentMonster.stats.hp -= heroStats.atk;
   updateCombatDisplay();
   let msg = `Hero attacks! Monster HP is ${currentMonster.stats.hp}.`;
   if (currentMonster.stats.hp <= 0) {
-    msg += ' Monster defeated!';
-    setCombatMessage(msg);
-    return msg;
+    endBattle(msg + ' Monster defeated!');
+    return msg + ' Monster defeated!';
   }
+  turn = 'enemy';
+  updateTurnIndicator();
   msg += ' ' + monsterTurn();
+  if (heroStats.hp <= 0) {
+    endBattle(msg + ' Hero defeated!');
+    return msg + ' Hero defeated!';
+  }
+  turn = 'player';
+  updateTurnIndicator();
   setCombatMessage(msg);
   return msg;
 }
 
 function defendAction() {
-  if (!currentMonster) return;
+  if (!currentMonster || turn !== 'player') return;
   heroStats.defending = true;
   let msg = 'Hero defends.';
+  turn = 'enemy';
+  updateTurnIndicator();
   msg += ' ' + monsterTurn();
+  if (heroStats.hp <= 0) {
+    endBattle(msg + ' Hero defeated!');
+    return msg + ' Hero defeated!';
+  }
+  turn = 'player';
+  updateTurnIndicator();
   setCombatMessage(msg);
   return msg;
 }
@@ -340,6 +378,10 @@ if (typeof module !== 'undefined' && module.exports) {
     enterBattle,
     attackAction,
     defendAction,
+    endBattle,
+    updateTurnIndicator,
+    getTurn: () => turn,
+    setTurn: t => { turn = t; },
     getBattleState: () => inBattle,
     setBattleState: b => { inBattle = b; }
   };
