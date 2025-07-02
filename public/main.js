@@ -53,39 +53,48 @@ document.addEventListener('DOMContentLoaded', () => {
   const clanContainer = document.getElementById('clan-selection-container');
   const clanOptions = document.querySelectorAll('.clan-option');
   const clanMessage = document.getElementById('selected-clan-message');
-  let selectedClan = localStorage.getItem('selectedClan') || null;
   const jobContainer = document.getElementById('job-selection-container');
   const jobOptions = document.querySelectorAll('.job-option');
   const jobMessage = document.getElementById('selected-job-message');
   const jobWarning = document.getElementById('job-warning');
   const continueBtn = document.getElementById('job-continue');
+
+  let selectedClan = localStorage.getItem('selectedClan') || null;
   let selectedJob = localStorage.getItem('selectedJob') || null;
+  const registered = localStorage.getItem('registered') === 'true';
+  let jobConfirmed = localStorage.getItem('jobConfirmed') === 'true';
+
+  const PHASES = { REGISTER: 'register', CLAN: 'clan', JOB: 'job', PLAY: 'play' };
+  const showPhase = phase => {
+    document.getElementById('registration-container').style.display =
+      phase === PHASES.REGISTER ? 'flex' : 'none';
+    clanContainer.style.display = phase === PHASES.CLAN ? 'block' : 'none';
+    jobContainer.style.display = phase === PHASES.JOB ? 'block' : 'none';
+  };
 
   if (selectedClan) {
     clanOptions.forEach(o => {
-      if (o.dataset.clan === selectedClan) {
-        o.classList.add('selected');
-      }
+      if (o.dataset.clan === selectedClan) o.classList.add('selected');
     });
-    if (clanMessage) {
-      clanMessage.textContent = `Selected Clan: ${selectedClan}`;
-    }
-    if (jobContainer) {
-      clanContainer.style.display = 'none';
-      jobContainer.style.display = 'block';
-    }
+    if (clanMessage) clanMessage.textContent = `Selected Clan: ${selectedClan}`;
   }
 
   if (selectedJob) {
     jobOptions.forEach(o => {
-      if (o.dataset.job === selectedJob) {
-        o.classList.add('selected');
-      }
+      if (o.dataset.job === selectedJob) o.classList.add('selected');
     });
     if (jobMessage) {
-      jobMessage.textContent = `Selected Job: ${selectedJob}`;
+      const msg = jobConfirmed ? 'Job Confirmed' : 'Selected Job';
+      jobMessage.textContent = `${msg}: ${selectedJob}`;
     }
   }
+
+  const initPhase = () => {
+    if (!registered) showPhase(PHASES.REGISTER);
+    else if (!selectedClan) showPhase(PHASES.CLAN);
+    else if (!jobConfirmed) showPhase(PHASES.JOB);
+    else showPhase(PHASES.PLAY);
+  };
 
   clanOptions.forEach(opt => {
     opt.addEventListener('click', () => {
@@ -93,13 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
       opt.classList.add('selected');
       selectedClan = opt.dataset.clan;
       localStorage.setItem('selectedClan', selectedClan);
-      if (clanMessage) {
-        clanMessage.textContent = `Selected Clan: ${selectedClan}`;
-      }
-      if (jobContainer) {
-        clanContainer.style.display = 'none';
-        jobContainer.style.display = 'block';
-      }
+      if (clanMessage) clanMessage.textContent = `Selected Clan: ${selectedClan}`;
+      showPhase(PHASES.JOB);
     });
   });
 
@@ -123,32 +127,36 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       if (jobWarning) jobWarning.textContent = '';
+      jobConfirmed = true;
+      localStorage.setItem('jobConfirmed', 'true');
       if (jobMessage) jobMessage.textContent = `Job Confirmed: ${selectedJob}`;
+      showPhase(PHASES.PLAY);
     });
   }
 
-  if (!form) return;
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    const username = form.username.value.trim();
-    const email = form.email.value.trim();
-    const password = form.password.value.trim();
+  if (form) {
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const username = form.username.value.trim();
+      const email = form.email.value.trim();
+      const password = form.password.value.trim();
 
-    const error = typeof validateRegistration === 'function'
-      ? validateRegistration(username, email, password)
-      : '';
+      const error = typeof validateRegistration === 'function'
+        ? validateRegistration(username, email, password)
+        : '';
 
-    if (error) {
-      errorEl.textContent = error;
-      return;
-    }
+      if (error) {
+        errorEl.textContent = error;
+        return;
+      }
 
-    errorEl.textContent = '';
-    console.log('Registered:', { username, email });
-    document.getElementById('registration-container').style.display = 'none';
-    if (clanContainer) {
-      clanContainer.style.display = 'block';
-    }
-  });
+      errorEl.textContent = '';
+      localStorage.setItem('registered', 'true');
+      console.log('Registered:', { username, email });
+      showPhase(PHASES.CLAN);
+    });
+  }
+
+  initPhase();
 });
 
