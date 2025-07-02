@@ -5,8 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "start": "live-server --open=public/index.html .",
-    "build-css": "sass src/scss/main.scss public/style.css"
+    "start": "vite",
+    "build-css": "sass src/scss/main.scss public/style.css",
+    "build": "npm run build-css && vite build",
+    "postbuild": "cp public/validation.js dist/"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +18,7 @@
     "jest": "^30.0.3",
     "live-server": "^1.2.2",
     "phaser": "^3.90.0",
-    "sass": "^1.89.2"
+    "sass": "^1.89.2",
+    "vite": "^7.0.0"
   }
 }
