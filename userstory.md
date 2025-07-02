@@ -7,3 +7,4 @@
 - User Story 2: Initiate Automated Testing Framework.
 - User Story 3: Integrate CSS with Sass Preprocessor.
 - User Story 3a: Hero Movement in Dungeon.
+- User Story 3b: Basic Dungeon Map Rendering.

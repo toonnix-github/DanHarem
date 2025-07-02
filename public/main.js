@@ -1,7 +1,41 @@
+const tileSize = 32;
+const mapData = [
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+];
+
 const config = {
   type: Phaser.AUTO,
-  width: 800,
-  height: 600,
+  width: tileSize * mapData[0].length,
+  height: tileSize * mapData.length,
   backgroundColor: '#1d212d',
   scene: {
     preload,
@@ -19,7 +53,18 @@ function preload() {
 }
 
 function create() {
-  hero = this.add.rectangle(400, 300, 40, 40, 0xff0000);
+  const graphics = this.add.graphics();
+  graphics.fillStyle(0x444444, 1);
+  mapData.forEach((row, y) => {
+    row.forEach((cell, x) => {
+      const color = cell === 1 ? 0x888888 : 0x222222;
+      graphics.fillStyle(color, 1);
+      graphics.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+    });
+  });
+
+  // spawn hero on a walkable tile to ensure movement works
+  hero = this.add.rectangle(tileSize + tileSize / 2, tileSize + tileSize / 2, tileSize, tileSize, 0xff0000);
   cursors = this.input.keyboard.createCursorKeys();
   wasd = this.input.keyboard.addKeys({
     up: Phaser.Input.Keyboard.KeyCodes.W,
@@ -33,14 +78,29 @@ function update() {
   if (!hero || !cursors || !wasd) return;
   const speed = 200;
   const delta = this.game.loop.delta / 1000;
-  if (cursors.left.isDown || wasd.left.isDown) hero.x -= speed * delta;
-  if (cursors.right.isDown || wasd.right.isDown) hero.x += speed * delta;
-  if (cursors.up.isDown || wasd.up.isDown) hero.y -= speed * delta;
-  if (cursors.down.isDown || wasd.down.isDown) hero.y += speed * delta;
-  const width = this.sys.game.config.width;
-  const height = this.sys.game.config.height;
+  let newX = hero.x;
+  let newY = hero.y;
+  if (cursors.left.isDown || wasd.left.isDown) newX -= speed * delta;
+  if (cursors.right.isDown || wasd.right.isDown) newX += speed * delta;
+  if (cursors.up.isDown || wasd.up.isDown) newY -= speed * delta;
+  if (cursors.down.isDown || wasd.down.isDown) newY += speed * delta;
+
   const halfW = hero.width / 2;
   const halfH = hero.height / 2;
+  const checkTile = (x, y) => {
+    const tx = Math.floor(x / tileSize);
+    const ty = Math.floor(y / tileSize);
+    return mapData[ty] && mapData[ty][tx] === 1;
+  };
+
+  if (checkTile(newX - halfW, hero.y) && checkTile(newX + halfW - 1, hero.y)) {
+    hero.x = newX;
+  }
+  if (checkTile(hero.x, newY - halfH) && checkTile(hero.x, newY + halfH - 1)) {
+    hero.y = newY;
+  }
+  const width = this.sys.game.config.width;
+  const height = this.sys.game.config.height;
   hero.x = Math.max(halfW, Math.min(width - halfW, hero.x));
   hero.y = Math.max(halfH, Math.min(height - halfH, hero.y));
 }
@@ -159,4 +219,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   initPhase();
 });
+
+// expose functions for testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    tileSize,
+    mapData,
+    preload,
+    create,
+    update,
+    getHero: () => hero,
+    setHero: h => { hero = h; },
+    setInputs: (c, w) => { cursors = c; wasd = w; }
+  };
+}
 
