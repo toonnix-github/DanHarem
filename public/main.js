@@ -153,7 +153,7 @@ async function enemyPhase(msg) {
   turn = 'enemy';
   updateTurnIndicator();
   setCombatMessage(msg);
-  await delay(300);
+  await delay(1000);
   msg += ' ' + monsterTurn();
   if (heroStats.hp <= 0) {
     endBattle(msg + ' Hero defeated!');
