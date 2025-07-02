@@ -1,0 +1,18 @@
+{
+  "name": "danharem",
+  "version": "1.0.0",
+  "description": "This project is an online retro pixel-art RPG inspired by **Danmachi** and **Harem in the Labyrinth of Another World**. Players create adventurers affiliated with one of five GOD clans, select jobs, and build parties by recruiting slaves to explore dungeons and engage in turn-based combat.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "live-server public"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "live-server": "^1.2.2",
+    "phaser": "^3.90.0"
+  }
+}

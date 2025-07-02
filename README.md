@@ -68,3 +68,19 @@ Start with these MVP user stories:
 - Product Owner: Produtiva (AI)  
 - Project Manager: Toonnix
 - Developers: AI Devs
+
+## Phaser Prototype Setup
+This repository now includes a minimal [Phaser.js](https://phaser.io) prototype located in the `public` folder. To run it locally:
+
+1. Ensure [Node.js](https://nodejs.org/) is installed.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm start
+   ```
+   This launches **live-server** and opens the demo in your browser.
+
+You should see a window with a red square rendered by the Phaser game loop. This serves as the project foundation for future gameplay features.
