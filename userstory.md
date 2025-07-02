@@ -9,3 +9,4 @@
 - User Story 3a: Hero Movement in Dungeon.
 - User Story 3b: Basic Dungeon Map Rendering.
 - User Story 3c: Monster Encounter Trigger.
+- User Story 3d: Turn-Based Combat Initiation.
