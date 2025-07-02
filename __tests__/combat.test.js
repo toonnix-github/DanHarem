@@ -70,3 +70,14 @@ test('monster removed after defeat', async () => {
   expect(getMonsters().length).toBe(0);
   expect(monster.sprite.destroy).toHaveBeenCalled();
 });
+
+test('monster action delayed by 1 second', async () => {
+  const monster = { stats: { hp: 30, atk: 5 } };
+  enterBattle(monster);
+  const spy = jest.spyOn(global, 'setTimeout');
+  const promise = attackAction();
+  expect(spy.mock.calls.some(c => c[1] === 1000)).toBe(true);
+  jest.runAllTimers();
+  await promise;
+  spy.mockRestore();
+});
