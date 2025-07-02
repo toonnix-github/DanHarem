@@ -128,7 +128,12 @@ function handleRewards() {
   const msgEl = document.getElementById('reward-message');
   const container = document.getElementById('reward-container');
   if (msgEl) msgEl.textContent = `Earned ${reward.exp} XP`;
-  if (container) container.style.display = 'block';
+  if (container) {
+    container.style.display = 'block';
+    setTimeout(() => {
+      container.style.display = 'none';
+    }, 3000);
+  }
 }
 
 function animateAttack(attackerId, targetId) {

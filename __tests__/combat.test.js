@@ -87,6 +87,9 @@ test('rewards granted after defeating monster', async () => {
   expect(playerRewards.exp).toBeGreaterThan(0);
   expect(document.getElementById('reward-container').style.display).toBe('block');
   expect(document.getElementById('reward-message').textContent).toContain('XP');
+  jest.advanceTimersByTime(3000);
+  await flushTimers();
+  expect(document.getElementById('reward-container').style.display).toBe('none');
 });
 
 test('monster action delayed with five 1 second steps', async () => {
