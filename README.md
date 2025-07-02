@@ -94,3 +94,15 @@ The `public` folder can be deployed directly as a static site. Because the
 Phaser library is loaded from a CDN, you don't need to include `node_modules`
 in your deployment. Simply configure Vercel to serve the `public` directory and
 the prototype should run without 404 errors.
+
+## Running Tests
+
+This project uses [Jest](https://jestjs.io) for unit testing. After cloning the
+repository and installing dependencies, run the test suite with:
+
+```bash
+npm test
+```
+
+Example tests are located in the `__tests__` directory and cover registration
+form validation logic.

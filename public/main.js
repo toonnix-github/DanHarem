@@ -64,21 +64,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const email = form.email.value.trim();
     const password = form.password.value.trim();
 
-    let error = '';
-
-    if (!username) {
-      error = 'Username is required.';
-    } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      error = 'Username can only contain letters, numbers, and underscores.';
-    } else if (!email) {
-      error = 'Email is required.';
-    } else if (!/^\S+@\S+\.\S+$/.test(email)) {
-      error = 'Enter a valid email address.';
-    } else if (!password) {
-      error = 'Password is required.';
-    } else if (password.length < 8) {
-      error = 'Password must be at least 8 characters.';
-    }
+    const error = typeof validateRegistration === 'function'
+      ? validateRegistration(username, email, password)
+      : '';
 
     if (error) {
       errorEl.textContent = error;
