@@ -58,7 +58,11 @@ Start with these MVP user stories:
 - Clone the repository.  
 - Follow the instructions in `/docs` for environment setup.  
 - Implement features branch by branch following user stories.  
-- Submit pull requests for review (if applicable).  
+- Submit pull requests for review (if applicable).
+
+## Remark
+- update this file regularly if you find anything new
+- update user story that you are working on in the file userstory.md to record all of the work that happen here
 
 ## Contact & Collaboration
 - Product Owner: Produtiva (AI)  
