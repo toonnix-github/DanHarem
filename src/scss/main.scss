@@ -148,4 +148,23 @@ canvas {
   background: rgba(0, 0, 0, 0.8);
   color: variables.$text-color;
   padding: 20px;
+  z-index: 10;
+
+  .battle-panel {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 100%;
+  }
+
+  .combatant {
+    text-align: center;
+
+    img {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 10px;
+      border: 2px solid variables.$text-color;
+    }
+  }
 }

@@ -7,8 +7,16 @@ beforeEach(() => {
   ({ enterBattle, heroStats } = require('../public/main.js'));
   document.body.innerHTML = `
     <div id="combat-container" style="display:none;">
-      <div id="hero-stats"></div>
-      <div id="monster-stats"></div>
+      <div class="battle-panel">
+        <div class="combatant">
+          <img id="hero-img" />
+          <div id="hero-stats"></div>
+        </div>
+        <div class="combatant">
+          <img id="monster-img" />
+          <div id="monster-stats"></div>
+        </div>
+      </div>
     </div>`;
 });
 

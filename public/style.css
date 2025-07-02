@@ -142,6 +142,22 @@ canvas {
   background: rgba(0, 0, 0, 0.8);
   color: #fff;
   padding: 20px;
+  z-index: 10;
+}
+#combat-container .battle-panel {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 100%;
+}
+#combat-container .combatant {
+  text-align: center;
+}
+#combat-container .combatant img {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 10px;
+  border: 2px solid #fff;
 }
 
 /*# sourceMappingURL=style.css.map */

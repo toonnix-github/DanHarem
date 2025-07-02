@@ -3,6 +3,8 @@
 ## Overview
 This project is an online retro pixel-art RPG inspired by **Danmachi** and **Harem in the Labyrinth of Another World**. Players create adventurers affiliated with one of five GOD clans, select jobs, and build parties by recruiting slaves to explore dungeons and engage in turn-based combat.
 
+> **Note** A companion Android build maintained by [offline-labs](https://github.com/offline-labs) is available via [F-Droid](https://f-droid.org/en/packages/com.offline.danharem/). The name **DanHarem** is silly and not final.
+
 ## Core Features
 - **Player Registration & Clan Selection:** Players register accounts and select a GOD clan with unique perks.
 - **Job Selection:** Choose from foundational jobs (Knight, Ranger, Mage) each with distinct stats.
