@@ -7,9 +7,42 @@
   <style>
     body { margin: 0; padding: 0; }
     canvas { display: block; margin: 0 auto; }
+    #registration-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.7);
+    }
+    #registration-form {
+      background: #fff;
+      padding: 20px;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 300px;
+    }
+    #registration-form input[type="text"],
+    #registration-form input[type="email"],
+    #registration-form input[type="password"] {
+      padding: 8px;
+    }
   </style>
 </head>
 <body>
+  <div id="registration-container">
+    <form id="registration-form">
+      <input type="text" id="username" placeholder="Username" required />
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button type="submit">Register</button>
+    </form>
+  </div>
   <!-- Load Phaser from CDN so deployments don't need local node_modules -->
   <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
   <script src="main.js"></script>

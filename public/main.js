@@ -26,3 +26,22 @@ function update() {
 
 const game = new Phaser.Game(config);
 
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('registration-form');
+  if (!form) return;
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const username = form.username.value.trim();
+    const email = form.email.value.trim();
+    const password = form.password.value.trim();
+
+    if (!username || !email || !password) {
+      alert('All fields are required.');
+      return;
+    }
+
+    console.log('Registered:', { username, email });
+    document.getElementById('registration-container').style.display = 'none';
+  });
+});
+
