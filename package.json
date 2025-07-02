@@ -7,7 +7,8 @@
     "test": "jest",
     "start": "vite",
     "build-css": "sass src/scss/main.scss public/style.css",
-    "build": "npm run build-css && vite build"
+    "build": "npm run build-css && vite build",
+    "postbuild": "cp public/validation.js dist/"
   },
   "keywords": [],
   "author": "",

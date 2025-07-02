@@ -96,7 +96,9 @@ npm run build
 ```
 
 This bundles and minifies the app into the `dist` directory along with source
-maps. Deploy the contents of `dist` as a static site on Vercel.
+maps. The build also copies `public/validation.js` into `dist` so the
+registration form works after deployment. Deploy the contents of `dist` as a
+static site on Vercel.
 
 ## Running Tests
 
