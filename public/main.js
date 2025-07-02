@@ -61,7 +61,8 @@ function create() {
     });
   });
 
-  hero = this.add.rectangle(tileSize * 2 + tileSize / 2, tileSize * 2 + tileSize / 2, tileSize, tileSize, 0xff0000);
+  // spawn hero on a walkable tile to ensure movement works
+  hero = this.add.rectangle(tileSize + tileSize / 2, tileSize + tileSize / 2, tileSize, tileSize, 0xff0000);
   cursors = this.input.keyboard.createCursorKeys();
   wasd = this.input.keyboard.addKeys({
     up: Phaser.Input.Keyboard.KeyCodes.W,
@@ -216,4 +217,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   initPhase();
 });
+
+// expose functions for testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    tileSize,
+    mapData,
+    preload,
+    create,
+    update,
+    getHero: () => hero,
+    setHero: h => { hero = h; },
+    setInputs: (c, w) => { cursors = c; wasd = w; }
+  };
+}
 
