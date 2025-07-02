@@ -1,18 +1,18 @@
-# Project: Dungeon Harem Online Game
+# Project: Dungeon Harem (Working Title) Online Game
 
 ## Overview
-This project is an online retro pixel-art RPG inspired by **Danmachi** and **Harem in the Labyrinth of Another World**. Players create adventurers affiliated with one of five GOD clans, select jobs, and build parties by recruiting slaves to explore dungeons and engage in turn-based combat.
+This modest project is an online retro pixel-art RPG inspired by **Danmachi** and **Harem in the Labyrinth of Another World**. Players create adventurers affiliated with one of five GOD clans, select jobs, and build parties by recruiting companions to explore dungeons and engage in turn-based combat.
 
 > **Note** A companion Android build maintained by [offline-labs](https://github.com/offline-labs) is available via [F-Droid](https://f-droid.org/en/packages/com.offline.danharem/). The name **DanHarem** is silly and not final.
 
 ## Core Features
 - **Player Registration & Clan Selection:** Players register accounts and select a GOD clan with unique perks.
 - **Job Selection:** Choose from foundational jobs (Knight, Ranger, Mage) each with distinct stats.
-- **Slave Management:** Purchase and level slaves to form a 3-person party (player + 2 slaves).
-- **Party AI & Commands:** Slaves act autonomously with simple strategy commands (e.g., "GO ALL OUT").
+- **Companion Management:** Recruit and level companions to form a 3-person party (player + 2 companions).
+- **Party AI & Commands:** Companions act autonomously with simple strategy commands (e.g., "GO ALL OUT").
 - **Dungeon Exploration:** Navigate pixel-art town and dungeon maps.
 - **Combat System:** Turn-based battles with retro style inspired by Golden Sun.
-- **Free-to-play Model:** Players earn currency from dungeons to buy slaves; slaves cannot be sold.
+- **Free-to-play Model:** Players earn currency from dungeons to hire companions; companions cannot be sold.
 
 ## GOD Clans & Perks
 | Clan       | Perks                                                                                       |
@@ -35,7 +35,7 @@ Start with these MVP user stories:
 
 1. Player Registration & Clan Selection  
 2. Job Selection  
-3. Slave Buying & Management  
+3. Companion Recruitment & Management
 4. Party Commands & Simple AI Behavior  
 5. Dungeon Exploration & Map Navigation  
 6. Turn-Based Combat System
@@ -43,10 +43,10 @@ Start with these MVP user stories:
 ### Technical Stack (suggested)
 - Frontend: 2D pixel-art rendering framework (e.g., Phaser.js, Godot, or Unity 2D)  
 - Backend: REST API for player data, matchmaking, and game logic (Node.js, Python, or your preferred tech)  
-- Database: Store player profiles, slave data, inventory, and game states (SQL or NoSQL)  
+- Database: Store player profiles, companion data, inventory, and game states (SQL or NoSQL)
 - Authentication: Secure registration and login system
 
-### AI Behavior for Slaves
+### AI Behavior for Companions
 - Implement simple command-based AI: party members follow overall commands, do not require direct control.
 - Provide commands like "GO ALL OUT", "Defend first", "Save MP", "Heal only".
 
