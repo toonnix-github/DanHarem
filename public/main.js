@@ -51,10 +51,34 @@ let wasd;
 let monsters = [];
 let inBattle = false;
 let currentMonster = null;
+let turn = 'player';
 const monsterSpawns = [
   { x: 5, y: 5 },
   { x: 10, y: 8 }
 ];
+
+function updateTurnIndicator() {
+  const indicator = document.getElementById('turn-indicator');
+  if (indicator) {
+    indicator.textContent = turn === 'player' ? 'Player Turn' : 'Enemy Turn';
+  }
+}
+
+function endBattle(result) {
+  const combat = document.getElementById('combat-container');
+  if (combat) combat.style.display = 'none';
+  inBattle = false;
+  if (currentMonster) {
+    if (currentMonster.sprite && typeof currentMonster.sprite.destroy === 'function') {
+      currentMonster.sprite.destroy();
+    }
+    monsters = monsters.filter(m => m !== currentMonster);
+  }
+  currentMonster = null;
+  turn = 'player';
+  updateTurnIndicator();
+  if (result) setCombatMessage(result);
+}
 
 function spawnMonsters(scene) {
   monsters = monsterSpawns.map(pos => {
@@ -76,11 +100,13 @@ function enterBattle(monster) {
   const monsterEl = document.getElementById('monster-stats');
   currentMonster = monster;
   heroStats.defending = false;
+  turn = 'player';
   if (heroEl) heroEl.textContent = `Hero HP: ${heroStats.hp}`;
   if (monsterEl) monsterEl.textContent = `Monster HP: ${monster.stats.hp}`;
   combat.style.display = 'block';
   const msgEl = document.getElementById('combat-message');
   if (msgEl) msgEl.textContent = 'Battle started!';
+  updateTurnIndicator();
 }
 
 function updateCombatDisplay() {
@@ -95,6 +121,17 @@ function setCombatMessage(msg) {
   if (msgEl) msgEl.textContent = msg;
 }
 
+function animateAttack(attackerId, targetId) {
+  const attacker = document.getElementById(attackerId);
+  const target = document.getElementById(targetId);
+  if (attacker) attacker.classList.add('attacking');
+  if (target) target.classList.add('damaged');
+  setTimeout(() => {
+    if (attacker) attacker.classList.remove('attacking');
+    if (target) target.classList.remove('damaged');
+  }, 300);
+}
+
 function monsterTurn() {
   if (!currentMonster) return '';
   let damage = currentMonster.stats.atk;
@@ -102,33 +139,50 @@ function monsterTurn() {
     damage = Math.floor(damage / 2);
     heroStats.defending = false;
   }
+  animateAttack('monster-img', 'hero-img');
   heroStats.hp -= damage;
   updateCombatDisplay();
   return `Monster attacks for ${damage}. Hero HP is ${heroStats.hp}.`;
 }
 
-function attackAction() {
-  if (!currentMonster) return;
-  currentMonster.stats.hp -= heroStats.atk;
-  updateCombatDisplay();
-  let msg = `Hero attacks! Monster HP is ${currentMonster.stats.hp}.`;
-  if (currentMonster.stats.hp <= 0) {
-    msg += ' Monster defeated!';
-    setCombatMessage(msg);
-    return msg;
-  }
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function enemyPhase(msg) {
+  turn = 'enemy';
+  updateTurnIndicator();
+  setCombatMessage(msg);
+  await delay(300);
   msg += ' ' + monsterTurn();
+  if (heroStats.hp <= 0) {
+    endBattle(msg + ' Hero defeated!');
+    return msg + ' Hero defeated!';
+  }
+  turn = 'player';
+  updateTurnIndicator();
   setCombatMessage(msg);
   return msg;
 }
 
-function defendAction() {
-  if (!currentMonster) return;
+async function attackAction() {
+  if (!currentMonster || turn !== 'player') return '';
+  animateAttack('hero-img', 'monster-img');
+  currentMonster.stats.hp -= heroStats.atk;
+  updateCombatDisplay();
+  let msg = `Hero attacks! Monster HP is ${currentMonster.stats.hp}.`;
+  if (currentMonster.stats.hp <= 0) {
+    endBattle(msg + ' Monster defeated!');
+    return msg + ' Monster defeated!';
+  }
+  return enemyPhase(msg);
+}
+
+async function defendAction() {
+  if (!currentMonster || turn !== 'player') return '';
   heroStats.defending = true;
   let msg = 'Hero defends.';
-  msg += ' ' + monsterTurn();
-  setCombatMessage(msg);
-  return msg;
+  return enemyPhase(msg);
 }
 
 function preload() {
@@ -340,6 +394,10 @@ if (typeof module !== 'undefined' && module.exports) {
     enterBattle,
     attackAction,
     defendAction,
+    endBattle,
+    updateTurnIndicator,
+    getTurn: () => turn,
+    setTurn: t => { turn = t; },
     getBattleState: () => inBattle,
     setBattleState: b => { inBattle = b; }
   };

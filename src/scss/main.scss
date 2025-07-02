@@ -168,12 +168,28 @@ canvas {
     }
   }
 
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    50% { transform: translateX(4px); }
+    75% { transform: translateX(-4px); }
+  }
+
+  .attacking,
+  .damaged {
+    animation: shake 0.3s ease-in-out;
+  }
+
   #combat-controls {
     text-align: center;
     margin-top: 20px;
 
     button {
       margin: 0 5px;
+    }
+
+    #turn-indicator {
+      margin-top: 10px;
     }
   }
 
