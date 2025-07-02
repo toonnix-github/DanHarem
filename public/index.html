@@ -43,6 +43,11 @@
       color: #fff;
       overflow-y: auto;
     }
+    #selected-clan-message {
+      text-align: center;
+      margin-top: 10px;
+      font-weight: bold;
+    }
     #clan-list {
       display: flex;
       flex-wrap: wrap;
@@ -82,9 +87,10 @@
     </form>
   </div>
 
-  <div id="clan-selection-container">
-    <h2 style="text-align:center;margin-top:20px;">Choose Your GOD Clan</h2>
-    <div id="clan-list">
+    <div id="clan-selection-container">
+      <h2 style="text-align:center;margin-top:20px;">Choose Your GOD Clan</h2>
+      <div id="selected-clan-message"></div>
+      <div id="clan-list">
       <div class="clan-option" data-clan="ARES">
         <h3>ARES</h3>
         <p>+10% physical attack, bonus damage on critical hits, increased rage meter build-up</p>

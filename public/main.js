@@ -31,13 +31,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const errorEl = document.getElementById('error-message');
   const clanContainer = document.getElementById('clan-selection-container');
   const clanOptions = document.querySelectorAll('.clan-option');
-  let selectedClan = null;
+  const clanMessage = document.getElementById('selected-clan-message');
+  let selectedClan = localStorage.getItem('selectedClan') || null;
+
+  if (selectedClan) {
+    clanOptions.forEach(o => {
+      if (o.dataset.clan === selectedClan) {
+        o.classList.add('selected');
+      }
+    });
+    if (clanMessage) {
+      clanMessage.textContent = `Selected Clan: ${selectedClan}`;
+    }
+  }
 
   clanOptions.forEach(opt => {
     opt.addEventListener('click', () => {
       clanOptions.forEach(o => o.classList.remove('selected'));
       opt.classList.add('selected');
       selectedClan = opt.dataset.clan;
+      localStorage.setItem('selectedClan', selectedClan);
+      if (clanMessage) {
+        clanMessage.textContent = `Selected Clan: ${selectedClan}`;
+      }
     });
   });
 
