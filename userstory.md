@@ -4,3 +4,4 @@
 - User Story 1b: Registration Input Validation.
 - User Story 1c: Clan Selection UI.
 - User Story 1d: Save Clan Selection Locally.
+- User Story 2: Initiate Automated Testing Framework.
