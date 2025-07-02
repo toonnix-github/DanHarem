@@ -69,6 +69,9 @@ function endBattle(result) {
   if (combat) combat.style.display = 'none';
   inBattle = false;
   if (currentMonster) {
+    if (currentMonster.sprite && typeof currentMonster.sprite.destroy === 'function') {
+      currentMonster.sprite.destroy();
+    }
     monsters = monsters.filter(m => m !== currentMonster);
   }
   currentMonster = null;
@@ -118,6 +121,17 @@ function setCombatMessage(msg) {
   if (msgEl) msgEl.textContent = msg;
 }
 
+function animateAttack(attackerId, targetId) {
+  const attacker = document.getElementById(attackerId);
+  const target = document.getElementById(targetId);
+  if (attacker) attacker.classList.add('attacking');
+  if (target) target.classList.add('damaged');
+  setTimeout(() => {
+    if (attacker) attacker.classList.remove('attacking');
+    if (target) target.classList.remove('damaged');
+  }, 300);
+}
+
 function monsterTurn() {
   if (!currentMonster) return '';
   let damage = currentMonster.stats.atk;
@@ -125,6 +139,7 @@ function monsterTurn() {
     damage = Math.floor(damage / 2);
     heroStats.defending = false;
   }
+  animateAttack('monster-img', 'hero-img');
   heroStats.hp -= damage;
   updateCombatDisplay();
   return `Monster attacks for ${damage}. Hero HP is ${heroStats.hp}.`;
@@ -132,6 +147,7 @@ function monsterTurn() {
 
 function attackAction() {
   if (!currentMonster || turn !== 'player') return;
+  animateAttack('hero-img', 'monster-img');
   currentMonster.stats.hp -= heroStats.atk;
   updateCombatDisplay();
   let msg = `Hero attacks! Monster HP is ${currentMonster.stats.hp}.`;

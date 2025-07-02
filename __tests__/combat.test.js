@@ -1,10 +1,10 @@
 /** @jest-environment jsdom */
-let enterBattle, heroStats, attackAction, defendAction;
+let enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters;
 
 beforeEach(() => {
   jest.resetModules();
   global.Phaser = { Game: jest.fn() };
-  ({ enterBattle, heroStats, attackAction, defendAction } = require('../public/main.js'));
+  ({ enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters } = require('../public/main.js'));
   document.body.innerHTML = `
     <div id="combat-container" style="display:none;">
       <div class="battle-panel">
@@ -53,4 +53,13 @@ test('defendAction reduces incoming damage', () => {
   expect(heroStats.hp).toBe(98);
   expect(document.getElementById('combat-message').textContent).toContain('Monster attacks');
   expect(document.getElementById('turn-indicator').textContent).toBe('Player Turn');
+});
+
+test('monster removed after defeat', () => {
+  const monster = { stats: { hp: 10, atk: 0 }, sprite: { destroy: jest.fn() } };
+  setMonsters([monster]);
+  enterBattle(monster);
+  attackAction();
+  expect(getMonsters().length).toBe(0);
+  expect(monster.sprite.destroy).toHaveBeenCalled();
 });

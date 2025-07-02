@@ -159,6 +159,24 @@ canvas {
   margin-bottom: 10px;
   border: 2px solid #fff;
 }
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+  75% {
+    transform: translateX(-4px);
+  }
+}
+#combat-container .attacking,
+#combat-container .damaged {
+  animation: shake 0.3s ease-in-out;
+}
 #combat-container #combat-controls {
   text-align: center;
   margin-top: 20px;
