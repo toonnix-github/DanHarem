@@ -52,6 +52,7 @@ let monsters = [];
 let inBattle = false;
 let currentMonster = null;
 let turn = 'player';
+let combatLog = [];
 const monsterSpawns = [
   { x: 5, y: 5 },
   { x: 10, y: 8 }
@@ -66,7 +67,6 @@ function updateTurnIndicator() {
 
 function endBattle(result) {
   const combat = document.getElementById('combat-container');
-  if (combat) combat.style.display = 'none';
   inBattle = false;
   if (currentMonster) {
     if (currentMonster.sprite && typeof currentMonster.sprite.destroy === 'function') {
@@ -77,7 +77,8 @@ function endBattle(result) {
   currentMonster = null;
   turn = 'player';
   updateTurnIndicator();
-  if (result) setCombatMessage(result);
+  if (result) appendCombatMessage(result);
+  if (combat) combat.style.display = 'none';
 }
 
 function spawnMonsters(scene) {
@@ -104,8 +105,8 @@ function enterBattle(monster) {
   if (heroEl) heroEl.textContent = `Hero HP: ${heroStats.hp}`;
   if (monsterEl) monsterEl.textContent = `Monster HP: ${monster.stats.hp}`;
   combat.style.display = 'block';
-  const msgEl = document.getElementById('combat-message');
-  if (msgEl) msgEl.textContent = 'Battle started!';
+  combatLog = [];
+  setCombatMessage('Battle started!');
   updateTurnIndicator();
 }
 
@@ -118,7 +119,16 @@ function updateCombatDisplay() {
 
 function setCombatMessage(msg) {
   const msgEl = document.getElementById('combat-message');
-  if (msgEl) msgEl.textContent = msg;
+  if (!msgEl) return;
+  combatLog = [msg];
+  msgEl.innerHTML = combatLog.join('<br>');
+}
+
+function appendCombatMessage(msg) {
+  const msgEl = document.getElementById('combat-message');
+  if (!msgEl) return;
+  combatLog.push(msg);
+  msgEl.innerHTML = combatLog.join('<br>');
 }
 
 function animateAttack(attackerId, targetId) {
@@ -152,34 +162,31 @@ function delay(ms) {
 async function enemyPhase(msg) {
   turn = 'enemy';
   updateTurnIndicator();
-  msg += ' Monster turn';
-  setCombatMessage(msg);
+  appendCombatMessage(msg);
+  appendCombatMessage('Monster turn');
   await delay(1000);
 
-  msg += ' \u2192 Monster selects action';
-  setCombatMessage(msg);
+  appendCombatMessage('\u2192 Monster selects action');
   await delay(1000);
 
-  msg += ' \u2192 Monster takes action';
-  setCombatMessage(msg);
+  appendCombatMessage('\u2192 Monster takes action');
   await delay(1000);
 
-  msg += ' ' + monsterTurn();
-  setCombatMessage(msg);
+  appendCombatMessage(monsterTurn());
   await delay(1000);
 
   if (heroStats.hp <= 0) {
-    endBattle(msg + ' Hero defeated!');
-    return msg + ' Hero defeated!';
+    appendCombatMessage('Hero defeated!');
+    endBattle('Hero defeated!');
+    return 'Hero defeated!';
   }
 
   turn = 'player';
   updateTurnIndicator();
-  msg += ' \u2192 >>>';
-  setCombatMessage(msg);
+  appendCombatMessage('\u2192 >>>');
   await delay(1000);
 
-  return msg;
+  return combatLog.join(' ');
 }
 
 async function attackAction() {
@@ -189,8 +196,10 @@ async function attackAction() {
   updateCombatDisplay();
   let msg = `Hero attacks! Monster HP is ${currentMonster.stats.hp}.`;
   if (currentMonster.stats.hp <= 0) {
-    endBattle(msg + ' Monster defeated!');
-    return msg + ' Monster defeated!';
+    appendCombatMessage(msg);
+    appendCombatMessage('Monster defeated!');
+    endBattle('Monster defeated!');
+    return 'Monster defeated!';
   }
   return enemyPhase(msg);
 }

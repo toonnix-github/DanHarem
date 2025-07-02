@@ -143,12 +143,15 @@ canvas {
   color: #fff;
   padding: 20px;
   z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 #combat-container .battle-panel {
+  flex: 1;
   display: flex;
   justify-content: space-around;
   align-items: center;
-  height: 100%;
 }
 #combat-container .combatant {
   text-align: center;
@@ -179,7 +182,6 @@ canvas {
 }
 #combat-container #combat-controls {
   text-align: center;
-  margin-top: 20px;
 }
 #combat-container #combat-controls button {
   margin: 0 5px;
@@ -190,6 +192,8 @@ canvas {
 #combat-container #combat-message {
   margin-top: 10px;
   text-align: center;
+  overflow-y: auto;
+  max-height: 40%;
 }
 
 /*# sourceMappingURL=style.css.map */
