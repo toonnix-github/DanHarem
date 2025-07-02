@@ -19,6 +19,14 @@ describe('main.js DOM interactions', () => {
       <div class="clan-option" data-clan="ARES"><h3>ARES</h3></div>
       <div class="clan-option" data-clan="ATHENA"><h3>ATHENA</h3></div>
     </div>
+    <div id="job-selection-container">
+      <div id="selected-job-message"></div>
+      <div id="job-warning"></div>
+      <div class="job-option" data-job="Knight"><h3>Knight</h3></div>
+      <div class="job-option" data-job="Ranger"><h3>Ranger</h3></div>
+      <div class="job-option" data-job="Mage"><h3>Mage</h3></div>
+      <button id="job-continue">Continue</button>
+    </div>
   `;
 
   const loadScript = () => {
@@ -69,5 +77,36 @@ describe('main.js DOM interactions', () => {
     expect(document.getElementById('error-message').textContent).toBe('');
     expect(document.getElementById('registration-container').style.display).toBe('none');
     expect(document.getElementById('clan-selection-container').style.display).toBe('block');
+  });
+
+  test('clicking job option stores selection in localStorage', () => {
+    loadScript();
+    document.querySelector('[data-clan="ARES"]').click();
+    document.querySelector('[data-job="Knight"]').click();
+    expect(localStorage.getItem('selectedJob')).toBe('Knight');
+    expect(document.querySelector('[data-job="Knight"]').classList.contains('selected')).toBe(true);
+  });
+
+  test('loads selected job from localStorage on init', () => {
+    localStorage.setItem('selectedClan', 'ARES');
+    localStorage.setItem('selectedJob', 'Mage');
+    loadScript();
+    expect(document.querySelector('[data-job="Mage"]').classList.contains('selected')).toBe(true);
+    expect(document.getElementById('selected-job-message').textContent).toBe('Selected Job: Mage');
+  });
+
+  test('cannot continue without selecting job', () => {
+    loadScript();
+    document.querySelector('[data-clan="ARES"]').click();
+    document.getElementById('job-continue').click();
+    expect(document.getElementById('job-warning').textContent).toBe('Please select a job.');
+  });
+
+  test('confirmation message appears after job selected and continue clicked', () => {
+    loadScript();
+    document.querySelector('[data-clan="ARES"]').click();
+    document.querySelector('[data-job="Ranger"]').click();
+    document.getElementById('job-continue').click();
+    expect(document.getElementById('selected-job-message').textContent).toBe('Job Confirmed: Ranger');
   });
 });

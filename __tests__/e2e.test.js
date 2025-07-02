@@ -34,7 +34,7 @@ describe('End-to-end happy path', () => {
     if (browser) await browser.close();
   });
 
-  test('registers and selects clan', async () => {
+  test('registers, selects clan and job', async () => {
     await page.type('#username', 'user');
     await page.type('#email', 'test@example.com');
     await page.type('#password', 'password123');
@@ -49,5 +49,15 @@ describe('End-to-end happy path', () => {
     expect(stored).toBe('ARES');
     const message = await page.$eval('#selected-clan-message', el => el.textContent);
     expect(message).toBe('Selected Clan: ARES');
+
+    await page.waitForSelector('#job-selection-container', { visible: true });
+    await page.click('.job-option[data-job="Knight"]');
+    const storedJob = await page.evaluate(() => localStorage.getItem('selectedJob'));
+    expect(storedJob).toBe('Knight');
+    const jobMsg = await page.$eval('#selected-job-message', el => el.textContent);
+    expect(jobMsg).toBe('Selected Job: Knight');
+    await page.click('#job-continue');
+    const confirmMsg = await page.$eval('#selected-job-message', el => el.textContent);
+    expect(confirmMsg).toBe('Job Confirmed: Knight');
   });
 });

@@ -17,7 +17,7 @@
     </form>
   </div>
 
-    <div id="clan-selection-container">
+  <div id="clan-selection-container">
       <h2 class="clan-title">Choose Your GOD Clan</h2>
       <div id="selected-clan-message"></div>
       <div id="clan-list">
@@ -42,6 +42,27 @@
         <p>+10% fire resistance, increased weapon durability, bonus crafting/gem socket chances</p>
       </div>
     </div>
+  </div>
+
+  <div id="job-selection-container">
+    <h2 class="job-title">Choose Your Job</h2>
+    <div id="selected-job-message"></div>
+    <div id="job-list">
+      <div class="job-option" data-job="Knight">
+        <h3>Knight</h3>
+        <p>Balanced melee fighter with high defense</p>
+      </div>
+      <div class="job-option" data-job="Ranger">
+        <h3>Ranger</h3>
+        <p>Agile ranged attacker with stealth skills</p>
+      </div>
+      <div class="job-option" data-job="Mage">
+        <h3>Mage</h3>
+        <p>Master of elemental spells and magic damage</p>
+      </div>
+    </div>
+    <div id="job-warning" style="color:red;"></div>
+    <button id="job-continue">Continue</button>
   </div>
   <!-- Load Phaser from CDN so deployments don't need local node_modules -->
   <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>

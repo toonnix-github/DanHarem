@@ -33,6 +33,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const clanOptions = document.querySelectorAll('.clan-option');
   const clanMessage = document.getElementById('selected-clan-message');
   let selectedClan = localStorage.getItem('selectedClan') || null;
+  const jobContainer = document.getElementById('job-selection-container');
+  const jobOptions = document.querySelectorAll('.job-option');
+  const jobMessage = document.getElementById('selected-job-message');
+  const jobWarning = document.getElementById('job-warning');
+  const continueBtn = document.getElementById('job-continue');
+  let selectedJob = localStorage.getItem('selectedJob') || null;
 
   if (selectedClan) {
     clanOptions.forEach(o => {
@@ -42,6 +48,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     if (clanMessage) {
       clanMessage.textContent = `Selected Clan: ${selectedClan}`;
+    }
+    if (jobContainer) {
+      clanContainer.style.display = 'none';
+      jobContainer.style.display = 'block';
+    }
+  }
+
+  if (selectedJob) {
+    jobOptions.forEach(o => {
+      if (o.dataset.job === selectedJob) {
+        o.classList.add('selected');
+      }
+    });
+    if (jobMessage) {
+      jobMessage.textContent = `Selected Job: ${selectedJob}`;
     }
   }
 
@@ -54,8 +75,36 @@ document.addEventListener('DOMContentLoaded', () => {
       if (clanMessage) {
         clanMessage.textContent = `Selected Clan: ${selectedClan}`;
       }
+      if (jobContainer) {
+        clanContainer.style.display = 'none';
+        jobContainer.style.display = 'block';
+      }
     });
   });
+
+  jobOptions.forEach(opt => {
+    opt.addEventListener('click', () => {
+      jobOptions.forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      selectedJob = opt.dataset.job;
+      localStorage.setItem('selectedJob', selectedJob);
+      if (jobMessage) {
+        jobMessage.textContent = `Selected Job: ${selectedJob}`;
+      }
+      if (jobWarning) jobWarning.textContent = '';
+    });
+  });
+
+  if (continueBtn) {
+    continueBtn.addEventListener('click', () => {
+      if (!selectedJob) {
+        if (jobWarning) jobWarning.textContent = 'Please select a job.';
+        return;
+      }
+      if (jobWarning) jobWarning.textContent = '';
+      if (jobMessage) jobMessage.textContent = `Job Confirmed: ${selectedJob}`;
+    });
+  }
 
   if (!form) return;
   form.addEventListener('submit', e => {
