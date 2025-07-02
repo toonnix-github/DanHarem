@@ -81,19 +81,22 @@ This repository now includes a minimal [Phaser.js](https://phaser.io) prototype 
    ```bash
    npm start
    ```
-   This runs **live-server** from the project root and automatically opens
-   `public/index.html` in your browser. Phaser is loaded from a CDN so the
-   page works even when deploying to hosts like Vercel that do not serve
-   `node_modules`.
+   This runs **Vite** from the project root and serves `public/index.html` with
+   hot reloading. Phaser is loaded from a CDN so the page works even when
+   deploying to hosts like Vercel that do not serve `node_modules`.
 
 You should see a window with a red square rendered by the Phaser game loop. This serves as the project foundation for future gameplay features.
 
 ## Deploying to Vercel
 
-The `public` folder can be deployed directly as a static site. Because the
-Phaser library is loaded from a CDN, you don't need to include `node_modules`
-in your deployment. Simply configure Vercel to serve the `public` directory and
-the prototype should run without 404 errors.
+Create a production build with:
+
+```bash
+npm run build
+```
+
+This bundles and minifies the app into the `dist` directory along with source
+maps. Deploy the contents of `dist` as a static site on Vercel.
 
 ## Running Tests
 
@@ -112,7 +115,8 @@ form validation logic.
 Styles are written using [Sass](https://sass-lang.com/). Source files live in
 `src/scss` and are compiled to `public/style.css`.
 
-To build the CSS once:
+The production build automatically compiles these styles, but you can run the
+task manually:
 
 ```bash
 npm run build-css
