@@ -54,6 +54,7 @@ describe('main.js DOM interactions', () => {
   });
 
   test('clicking clan option stores selection in localStorage', () => {
+    localStorage.setItem('registered', 'true');
     loadScript();
     document.querySelector('[data-clan="ARES"]').click();
     expect(localStorage.getItem('selectedClan')).toBe('ARES');
@@ -61,6 +62,7 @@ describe('main.js DOM interactions', () => {
   });
 
   test('loads selected clan from localStorage on init', () => {
+    localStorage.setItem('registered', 'true');
     localStorage.setItem('selectedClan', 'ATHENA');
     loadScript();
     expect(document.querySelector('[data-clan="ATHENA"]').classList.contains('selected')).toBe(true);
@@ -80,6 +82,7 @@ describe('main.js DOM interactions', () => {
   });
 
   test('clicking job option stores selection in localStorage', () => {
+    localStorage.setItem('registered', 'true');
     loadScript();
     document.querySelector('[data-clan="ARES"]').click();
     document.querySelector('[data-job="Knight"]').click();
@@ -88,6 +91,7 @@ describe('main.js DOM interactions', () => {
   });
 
   test('loads selected job from localStorage on init', () => {
+    localStorage.setItem('registered', 'true');
     localStorage.setItem('selectedClan', 'ARES');
     localStorage.setItem('selectedJob', 'Mage');
     loadScript();
@@ -96,6 +100,7 @@ describe('main.js DOM interactions', () => {
   });
 
   test('cannot continue without selecting job', () => {
+    localStorage.setItem('registered', 'true');
     loadScript();
     document.querySelector('[data-clan="ARES"]').click();
     document.getElementById('job-continue').click();
@@ -103,6 +108,7 @@ describe('main.js DOM interactions', () => {
   });
 
   test('confirmation message appears after job selected and continue clicked', () => {
+    localStorage.setItem('registered', 'true');
     loadScript();
     document.querySelector('[data-clan="ARES"]').click();
     document.querySelector('[data-job="Ranger"]').click();
