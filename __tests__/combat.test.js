@@ -27,6 +27,13 @@ beforeEach(() => {
     </div>`;
 });
 
+async function flushTimers() {
+  while (jest.getTimerCount() > 0) {
+    jest.runOnlyPendingTimers();
+    await Promise.resolve();
+  }
+}
+
 test('enterBattle shows combat container with stats', () => {
   const monster = { stats: { hp: 30, atk: 5 } };
   enterBattle(monster);
@@ -42,7 +49,7 @@ test('attackAction damages monster and hero takes damage', async () => {
   enterBattle(monster);
   const promise = attackAction();
   expect(document.getElementById('turn-indicator').textContent).toBe('Enemy Turn');
-  jest.runAllTimers();
+  await flushTimers();
   await promise;
   expect(monster.stats.hp).toBe(20);
   expect(heroStats.hp).toBe(95);
@@ -55,7 +62,7 @@ test('defendAction reduces incoming damage', async () => {
   enterBattle(monster);
   const promise = defendAction();
   expect(document.getElementById('turn-indicator').textContent).toBe('Enemy Turn');
-  jest.runAllTimers();
+  await flushTimers();
   await promise;
   expect(heroStats.hp).toBe(98);
   expect(document.getElementById('combat-message').textContent).toContain('Monster attacks');
@@ -71,13 +78,14 @@ test('monster removed after defeat', async () => {
   expect(monster.sprite.destroy).toHaveBeenCalled();
 });
 
-test('monster action delayed by 1 second', async () => {
+test('monster action delayed with five 1 second steps', async () => {
   const monster = { stats: { hp: 30, atk: 5 } };
   enterBattle(monster);
   const spy = jest.spyOn(global, 'setTimeout');
   const promise = attackAction();
-  expect(spy.mock.calls.some(c => c[1] === 1000)).toBe(true);
-  jest.runAllTimers();
+  await flushTimers();
+  const oneSecondCalls = spy.mock.calls.filter(c => c[1] === 1000);
+  expect(oneSecondCalls.length).toBe(5);
   await promise;
   spy.mockRestore();
 });

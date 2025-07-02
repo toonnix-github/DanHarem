@@ -152,16 +152,33 @@ function delay(ms) {
 async function enemyPhase(msg) {
   turn = 'enemy';
   updateTurnIndicator();
+  msg += ' Monster turn';
   setCombatMessage(msg);
   await delay(1000);
+
+  msg += ' \u2192 Monster selects action';
+  setCombatMessage(msg);
+  await delay(1000);
+
+  msg += ' \u2192 Monster takes action';
+  setCombatMessage(msg);
+  await delay(1000);
+
   msg += ' ' + monsterTurn();
+  setCombatMessage(msg);
+  await delay(1000);
+
   if (heroStats.hp <= 0) {
     endBattle(msg + ' Hero defeated!');
     return msg + ' Hero defeated!';
   }
+
   turn = 'player';
   updateTurnIndicator();
+  msg += ' \u2192 >>>';
   setCombatMessage(msg);
+  await delay(1000);
+
   return msg;
 }
 
