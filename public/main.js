@@ -46,6 +46,7 @@ const config = {
 
 let hero;
 let heroStats = { hp: 100, atk: 10, defending: false };
+let playerRewards = { exp: 0, gold: 0, items: [] };
 let cursors;
 let wasd;
 let monsters = [];
@@ -121,6 +122,20 @@ function setCombatMessage(msg) {
   if (msgEl) msgEl.textContent = msg;
 }
 
+function handleRewards() {
+  const reward = { exp: 10 };
+  playerRewards.exp += reward.exp;
+  const msgEl = document.getElementById('reward-message');
+  const container = document.getElementById('reward-container');
+  if (msgEl) msgEl.textContent = `Earned ${reward.exp} XP`;
+  if (container) {
+    container.style.display = 'block';
+    setTimeout(() => {
+      container.style.display = 'none';
+    }, 3000);
+  }
+}
+
 function animateAttack(attackerId, targetId) {
   const attacker = document.getElementById(attackerId);
   const target = document.getElementById(targetId);
@@ -189,6 +204,7 @@ async function attackAction() {
   updateCombatDisplay();
   let msg = `Hero attacks! Monster HP is ${currentMonster.stats.hp}.`;
   if (currentMonster.stats.hp <= 0) {
+    handleRewards();
     endBattle(msg + ' Monster defeated!');
     return msg + ' Monster defeated!';
   }
@@ -412,11 +428,13 @@ if (typeof module !== 'undefined' && module.exports) {
     attackAction,
     defendAction,
     endBattle,
+    handleRewards,
     updateTurnIndicator,
     getTurn: () => turn,
     setTurn: t => { turn = t; },
     getBattleState: () => inBattle,
-    setBattleState: b => { inBattle = b; }
+    setBattleState: b => { inBattle = b; },
+    playerRewards
   };
 }
 

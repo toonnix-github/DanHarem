@@ -192,4 +192,16 @@ canvas {
   text-align: center;
 }
 
+#reward-container {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 10px;
+  border: 1px solid #fff;
+  display: none;
+}
+
 /*# sourceMappingURL=style.css.map */
