@@ -1,16 +1,12 @@
 /** @jest-environment jsdom */
-const {
-  update,
-  tileSize,
-  mapData,
-  setHero,
-  setInputs
-} = require('../public/main.js');
+let update, tileSize, mapData, setHero, setInputs;
 
 describe('hero movement', () => {
   beforeEach(() => {
-    // ensure Phaser doesn't execute game loop
-    global.Phaser = { Game: jest.fn() };
+    jest.resetModules();
+    // stub Phaser to prevent actual game creation
+    global.Phaser = { Game: jest.fn(), AUTO: 0, Input: { Keyboard: { KeyCodes: {} } } };
+    ({ update, tileSize, mapData, setHero, setInputs } = require('../public/main.js'));
   });
 
   test('hero moves right when right key is pressed', () => {
