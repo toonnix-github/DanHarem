@@ -1,11 +1,11 @@
 /** @jest-environment jsdom */
-let enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters;
+let enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters, playerRewards;
 
 beforeEach(() => {
   jest.resetModules();
   jest.useFakeTimers();
   global.Phaser = { Game: jest.fn() };
-  ({ enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters } = require('../public/main.js'));
+  ({ enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters, playerRewards } = require('../public/main.js'));
   document.body.innerHTML = `
     <div id="combat-container" style="display:none;">
       <div class="battle-panel">
@@ -24,7 +24,8 @@ beforeEach(() => {
         <div id="turn-indicator"></div>
         <div id="combat-message"></div>
       </div>
-    </div>`;
+    </div>
+    <div id="reward-container"><div id="reward-message"></div></div>`;
 });
 
 async function flushTimers() {
@@ -76,6 +77,16 @@ test('monster removed after defeat', async () => {
   await attackAction();
   expect(getMonsters().length).toBe(0);
   expect(monster.sprite.destroy).toHaveBeenCalled();
+});
+
+test('rewards granted after defeating monster', async () => {
+  const monster = { stats: { hp: 10, atk: 0 }, sprite: { destroy: jest.fn() } };
+  setMonsters([monster]);
+  enterBattle(monster);
+  await attackAction();
+  expect(playerRewards.exp).toBeGreaterThan(0);
+  expect(document.getElementById('reward-container').style.display).toBe('block');
+  expect(document.getElementById('reward-message').textContent).toContain('XP');
 });
 
 test('monster action delayed with five 1 second steps', async () => {
