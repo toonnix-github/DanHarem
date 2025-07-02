@@ -106,3 +106,17 @@ npm test
 
 Example tests are located in the `__tests__` directory and cover registration
 form validation logic.
+
+## Sass Styles
+
+Styles are written using [Sass](https://sass-lang.com/). Source files live in
+`src/scss` and are compiled to `public/style.css`.
+
+To build the CSS once:
+
+```bash
+npm run build-css
+```
+
+During development you can run `npx sass --watch src/scss/main.scss public/style.css`
+to automatically rebuild on changes.
