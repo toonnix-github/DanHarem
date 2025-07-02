@@ -81,6 +81,8 @@ This repository now includes a minimal [Phaser.js](https://phaser.io) prototype 
    ```bash
    npm start
    ```
-   This launches **live-server** and opens the demo in your browser.
+   This runs **live-server** from the project root and automatically opens
+   `public/index.html` in your browser so the Phaser script can load from
+   `node_modules`.
 
 You should see a window with a red square rendered by the Phaser game loop. This serves as the project foundation for future gameplay features.
