@@ -29,6 +29,18 @@ const game = new Phaser.Game(config);
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('registration-form');
   const errorEl = document.getElementById('error-message');
+  const clanContainer = document.getElementById('clan-selection-container');
+  const clanOptions = document.querySelectorAll('.clan-option');
+  let selectedClan = null;
+
+  clanOptions.forEach(opt => {
+    opt.addEventListener('click', () => {
+      clanOptions.forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      selectedClan = opt.dataset.clan;
+    });
+  });
+
   if (!form) return;
   form.addEventListener('submit', e => {
     e.preventDefault();
@@ -60,6 +72,9 @@ document.addEventListener('DOMContentLoaded', () => {
     errorEl.textContent = '';
     console.log('Registered:', { username, email });
     document.getElementById('registration-container').style.display = 'none';
+    if (clanContainer) {
+      clanContainer.style.display = 'block';
+    }
   });
 });
 
