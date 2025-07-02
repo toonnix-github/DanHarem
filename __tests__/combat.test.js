@@ -1,10 +1,10 @@
 /** @jest-environment jsdom */
-let enterBattle, heroStats;
+let enterBattle, heroStats, attackAction, defendAction;
 
 beforeEach(() => {
   jest.resetModules();
   global.Phaser = { Game: jest.fn() };
-  ({ enterBattle, heroStats } = require('../public/main.js'));
+  ({ enterBattle, heroStats, attackAction, defendAction } = require('../public/main.js'));
   document.body.innerHTML = `
     <div id="combat-container" style="display:none;">
       <div class="battle-panel">
@@ -17,14 +17,36 @@ beforeEach(() => {
           <div id="monster-stats"></div>
         </div>
       </div>
+      <div id="combat-controls">
+        <button id="attack-btn">Attack</button>
+        <button id="defend-btn">Defend</button>
+        <div id="combat-message"></div>
+      </div>
     </div>`;
 });
 
 test('enterBattle shows combat container with stats', () => {
-  const monster = { stats: { hp: 30 } };
+  const monster = { stats: { hp: 30, atk: 5 } };
   enterBattle(monster);
   const container = document.getElementById('combat-container');
   expect(container.style.display).toBe('block');
   expect(document.getElementById('hero-stats').textContent).toBe(`Hero HP: ${heroStats.hp}`);
   expect(document.getElementById('monster-stats').textContent).toBe('Monster HP: 30');
+});
+
+test('attackAction damages monster and hero takes damage', () => {
+  const monster = { stats: { hp: 30, atk: 5 } };
+  enterBattle(monster);
+  attackAction();
+  expect(monster.stats.hp).toBe(20);
+  expect(heroStats.hp).toBe(95);
+  expect(document.getElementById('combat-message').textContent).toContain('Monster attacks');
+});
+
+test('defendAction reduces incoming damage', () => {
+  const monster = { stats: { hp: 30, atk: 5 } };
+  enterBattle(monster);
+  defendAction();
+  expect(heroStats.hp).toBe(98);
+  expect(document.getElementById('combat-message').textContent).toContain('Monster attacks');
 });

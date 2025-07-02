@@ -45,11 +45,12 @@ const config = {
 };
 
 let hero;
-let heroStats = { hp: 100, atk: 10 };
+let heroStats = { hp: 100, atk: 10, defending: false };
 let cursors;
 let wasd;
 let monsters = [];
 let inBattle = false;
+let currentMonster = null;
 const monsterSpawns = [
   { x: 5, y: 5 },
   { x: 10, y: 8 }
@@ -64,7 +65,7 @@ function spawnMonsters(scene) {
       tileSize,
       0x00ff00
     );
-    return { sprite, tileX: pos.x, tileY: pos.y, stats: { hp: 30 } };
+    return { sprite, tileX: pos.x, tileY: pos.y, stats: { hp: 30, atk: 5 } };
   });
 }
 
@@ -73,9 +74,61 @@ function enterBattle(monster) {
   if (!combat) return;
   const heroEl = document.getElementById('hero-stats');
   const monsterEl = document.getElementById('monster-stats');
+  currentMonster = monster;
+  heroStats.defending = false;
   if (heroEl) heroEl.textContent = `Hero HP: ${heroStats.hp}`;
   if (monsterEl) monsterEl.textContent = `Monster HP: ${monster.stats.hp}`;
   combat.style.display = 'block';
+  const msgEl = document.getElementById('combat-message');
+  if (msgEl) msgEl.textContent = 'Battle started!';
+}
+
+function updateCombatDisplay() {
+  const heroEl = document.getElementById('hero-stats');
+  const monsterEl = document.getElementById('monster-stats');
+  if (heroEl) heroEl.textContent = `Hero HP: ${heroStats.hp}`;
+  if (monsterEl && currentMonster) monsterEl.textContent = `Monster HP: ${currentMonster.stats.hp}`;
+}
+
+function setCombatMessage(msg) {
+  const msgEl = document.getElementById('combat-message');
+  if (msgEl) msgEl.textContent = msg;
+}
+
+function monsterTurn() {
+  if (!currentMonster) return '';
+  let damage = currentMonster.stats.atk;
+  if (heroStats.defending) {
+    damage = Math.floor(damage / 2);
+    heroStats.defending = false;
+  }
+  heroStats.hp -= damage;
+  updateCombatDisplay();
+  return `Monster attacks for ${damage}. Hero HP is ${heroStats.hp}.`;
+}
+
+function attackAction() {
+  if (!currentMonster) return;
+  currentMonster.stats.hp -= heroStats.atk;
+  updateCombatDisplay();
+  let msg = `Hero attacks! Monster HP is ${currentMonster.stats.hp}.`;
+  if (currentMonster.stats.hp <= 0) {
+    msg += ' Monster defeated!';
+    setCombatMessage(msg);
+    return msg;
+  }
+  msg += ' ' + monsterTurn();
+  setCombatMessage(msg);
+  return msg;
+}
+
+function defendAction() {
+  if (!currentMonster) return;
+  heroStats.defending = true;
+  let msg = 'Hero defends.';
+  msg += ' ' + monsterTurn();
+  setCombatMessage(msg);
+  return msg;
 }
 
 function preload() {
@@ -163,6 +216,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const jobMessage = document.getElementById('selected-job-message');
   const jobWarning = document.getElementById('job-warning');
   const continueBtn = document.getElementById('job-continue');
+  const attackBtn = document.getElementById('attack-btn');
+  const defendBtn = document.getElementById('defend-btn');
 
   let selectedClan = localStorage.getItem('selectedClan') || null;
   let selectedJob = localStorage.getItem('selectedJob') || null;
@@ -239,6 +294,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  if (attackBtn) attackBtn.addEventListener('click', attackAction);
+  if (defendBtn) defendBtn.addEventListener('click', defendAction);
+
   if (form) {
     form.addEventListener('submit', e => {
       e.preventDefault();
@@ -280,6 +338,8 @@ if (typeof module !== 'undefined' && module.exports) {
     setMonsters: m => { monsters = m; },
     heroStats,
     enterBattle,
+    attackAction,
+    defendAction,
     getBattleState: () => inBattle,
     setBattleState: b => { inBattle = b; }
   };

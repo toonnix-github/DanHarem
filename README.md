@@ -12,6 +12,7 @@ This modest project is an online retro pixel-art RPG inspired by **Danmachi** an
 - **Party AI & Commands:** Companions act autonomously with simple strategy commands (e.g., "GO ALL OUT").
 - **Dungeon Exploration:** Navigate pixel-art town and dungeon maps.
 - **Combat System:** Turn-based battles with retro style inspired by Golden Sun.
+- **Basic Combat Actions:** Attack or defend each turn to manage battles.
 - **Free-to-play Model:** Players earn currency from dungeons to hire companions; companions cannot be sold.
 
 ## GOD Clans & Perks

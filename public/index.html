@@ -65,20 +65,25 @@
     <button id="job-continue">Continue</button>
   </div>
 
-  <div id="combat-container">
-    <div class="battle-panel">
-      <div class="combatant">
-        <img id="hero-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAYElEQVR4nO3PQQ0AIBDAsAP/nkEEj4ZkVbCtmTM/2zrgVQNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgPaBVCHAX/y3CvgAAAAAElFTkSuQmCC" />
-        <div id="hero-stats"></div>
+    <div id="combat-container">
+      <div class="battle-panel">
+        <div class="combatant">
+          <img id="hero-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAYElEQVR4nO3PQQ0AIBDAsAP/nkEEj4ZkVbCtmTM/2zrgVQNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgPaBVCHAX/y3CvgAAAAAElFTkSuQmCC" />
+          <div id="hero-stats"></div>
+        </div>
+        <div class="combatant">
+          <img id="monster-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAX0lEQVR4nO3PQQ0AIBDAMMC/50MEj4ZkVbDtWX87OuBVA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA9oFUoUBf3Xr7AgAAAAASUVORK5CYII=" />
+          <div id="monster-stats"></div>
+        </div>
       </div>
-      <div class="combatant">
-        <img id="monster-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAX0lEQVR4nO3PQQ0AIBDAMMC/50MEj4ZkVbDtWX87OuBVA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA9oFUoUBf3Xr7AgAAAAASUVORK5CYII=" />
-        <div id="monster-stats"></div>
+      <div id="combat-controls">
+        <button id="attack-btn">Attack</button>
+        <button id="defend-btn">Defend</button>
+        <div id="combat-message"></div>
       </div>
     </div>
-  </div>
-  <!-- Load Phaser from CDN so deployments don't need local node_modules -->
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
+    <!-- Load Phaser from CDN so deployments don't need local node_modules -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
   <script src="validation.js"></script>
   <script type="module" src="main.js"></script>
 </body>
