@@ -159,5 +159,16 @@ canvas {
   margin-bottom: 10px;
   border: 2px solid #fff;
 }
+#combat-controls {
+  text-align: center;
+  margin-top: 20px;
+}
+#combat-controls button {
+  margin: 0 5px;
+}
+#combat-message {
+  margin-top: 10px;
+  text-align: center;
+}
 
 /*# sourceMappingURL=style.css.map */

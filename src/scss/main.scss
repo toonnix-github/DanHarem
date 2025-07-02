@@ -167,4 +167,18 @@ canvas {
       border: 2px solid variables.$text-color;
     }
   }
+
+  #combat-controls {
+    text-align: center;
+    margin-top: 20px;
+
+    button {
+      margin: 0 5px;
+    }
+  }
+
+  #combat-message {
+    margin-top: 10px;
+    text-align: center;
+  }
 }
