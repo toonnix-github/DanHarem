@@ -47,6 +47,25 @@ const config = {
 let hero;
 let cursors;
 let wasd;
+let monsters = [];
+let inBattle = false;
+const monsterSpawns = [
+  { x: 5, y: 5 },
+  { x: 10, y: 8 }
+];
+
+function spawnMonsters(scene) {
+  monsters = monsterSpawns.map(pos => {
+    const sprite = scene.add.rectangle(
+      pos.x * tileSize + tileSize / 2,
+      pos.y * tileSize + tileSize / 2,
+      tileSize,
+      tileSize,
+      0x00ff00
+    );
+    return { sprite, tileX: pos.x, tileY: pos.y };
+  });
+}
 
 function preload() {
   // nothing to preload yet
@@ -65,6 +84,7 @@ function create() {
 
   // spawn hero on a walkable tile to ensure movement works
   hero = this.add.rectangle(tileSize + tileSize / 2, tileSize + tileSize / 2, tileSize, tileSize, 0xff0000);
+  spawnMonsters(this);
   cursors = this.input.keyboard.createCursorKeys();
   wasd = this.input.keyboard.addKeys({
     up: Phaser.Input.Keyboard.KeyCodes.W,
@@ -103,6 +123,19 @@ function update() {
   const height = this.sys.game.config.height;
   hero.x = Math.max(halfW, Math.min(width - halfW, hero.x));
   hero.y = Math.max(halfH, Math.min(height - halfH, hero.y));
+
+  const heroTileX = Math.floor(hero.x / tileSize);
+  const heroTileY = Math.floor(hero.y / tileSize);
+  monsters.forEach(m => {
+    if (
+      Math.abs(heroTileX - m.tileX) <= 1 &&
+      Math.abs(heroTileY - m.tileY) <= 1 &&
+      !inBattle
+    ) {
+      inBattle = true;
+      console.log('Battle start!');
+    }
+  });
 }
 
 const game = new Phaser.Game(config);
@@ -230,7 +263,11 @@ if (typeof module !== 'undefined' && module.exports) {
     update,
     getHero: () => hero,
     setHero: h => { hero = h; },
-    setInputs: (c, w) => { cursors = c; wasd = w; }
+    setInputs: (c, w) => { cursors = c; wasd = w; },
+    getMonsters: () => monsters,
+    setMonsters: m => { monsters = m; },
+    getBattleState: () => inBattle,
+    setBattleState: b => { inBattle = b; }
   };
 }
 
