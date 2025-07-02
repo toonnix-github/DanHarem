@@ -145,18 +145,15 @@ function monsterTurn() {
   return `Monster attacks for ${damage}. Hero HP is ${heroStats.hp}.`;
 }
 
-function attackAction() {
-  if (!currentMonster || turn !== 'player') return;
-  animateAttack('hero-img', 'monster-img');
-  currentMonster.stats.hp -= heroStats.atk;
-  updateCombatDisplay();
-  let msg = `Hero attacks! Monster HP is ${currentMonster.stats.hp}.`;
-  if (currentMonster.stats.hp <= 0) {
-    endBattle(msg + ' Monster defeated!');
-    return msg + ' Monster defeated!';
-  }
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function enemyPhase(msg) {
   turn = 'enemy';
   updateTurnIndicator();
+  setCombatMessage(msg);
+  await delay(300);
   msg += ' ' + monsterTurn();
   if (heroStats.hp <= 0) {
     endBattle(msg + ' Hero defeated!');
@@ -168,21 +165,24 @@ function attackAction() {
   return msg;
 }
 
-function defendAction() {
-  if (!currentMonster || turn !== 'player') return;
+async function attackAction() {
+  if (!currentMonster || turn !== 'player') return '';
+  animateAttack('hero-img', 'monster-img');
+  currentMonster.stats.hp -= heroStats.atk;
+  updateCombatDisplay();
+  let msg = `Hero attacks! Monster HP is ${currentMonster.stats.hp}.`;
+  if (currentMonster.stats.hp <= 0) {
+    endBattle(msg + ' Monster defeated!');
+    return msg + ' Monster defeated!';
+  }
+  return enemyPhase(msg);
+}
+
+async function defendAction() {
+  if (!currentMonster || turn !== 'player') return '';
   heroStats.defending = true;
   let msg = 'Hero defends.';
-  turn = 'enemy';
-  updateTurnIndicator();
-  msg += ' ' + monsterTurn();
-  if (heroStats.hp <= 0) {
-    endBattle(msg + ' Hero defeated!');
-    return msg + ' Hero defeated!';
-  }
-  turn = 'player';
-  updateTurnIndicator();
-  setCombatMessage(msg);
-  return msg;
+  return enemyPhase(msg);
 }
 
 function preload() {

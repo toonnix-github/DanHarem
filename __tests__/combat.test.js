@@ -3,6 +3,7 @@ let enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters
 
 beforeEach(() => {
   jest.resetModules();
+  jest.useFakeTimers();
   global.Phaser = { Game: jest.fn() };
   ({ enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters } = require('../public/main.js'));
   document.body.innerHTML = `
@@ -36,30 +37,36 @@ test('enterBattle shows combat container with stats', () => {
   expect(document.getElementById('turn-indicator').textContent).toBe('Player Turn');
 });
 
-test('attackAction damages monster and hero takes damage', () => {
+test('attackAction damages monster and hero takes damage', async () => {
   const monster = { stats: { hp: 30, atk: 5 } };
   enterBattle(monster);
-  attackAction();
+  const promise = attackAction();
+  expect(document.getElementById('turn-indicator').textContent).toBe('Enemy Turn');
+  jest.runAllTimers();
+  await promise;
   expect(monster.stats.hp).toBe(20);
   expect(heroStats.hp).toBe(95);
   expect(document.getElementById('combat-message').textContent).toContain('Monster attacks');
   expect(document.getElementById('turn-indicator').textContent).toBe('Player Turn');
 });
 
-test('defendAction reduces incoming damage', () => {
+test('defendAction reduces incoming damage', async () => {
   const monster = { stats: { hp: 30, atk: 5 } };
   enterBattle(monster);
-  defendAction();
+  const promise = defendAction();
+  expect(document.getElementById('turn-indicator').textContent).toBe('Enemy Turn');
+  jest.runAllTimers();
+  await promise;
   expect(heroStats.hp).toBe(98);
   expect(document.getElementById('combat-message').textContent).toContain('Monster attacks');
   expect(document.getElementById('turn-indicator').textContent).toBe('Player Turn');
 });
 
-test('monster removed after defeat', () => {
+test('monster removed after defeat', async () => {
   const monster = { stats: { hp: 10, atk: 0 }, sprite: { destroy: jest.fn() } };
   setMonsters([monster]);
   enterBattle(monster);
-  attackAction();
+  await attackAction();
   expect(getMonsters().length).toBe(0);
   expect(monster.sprite.destroy).toHaveBeenCalled();
 });
