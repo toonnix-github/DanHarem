@@ -10,18 +10,39 @@ const config = {
   }
 };
 
-let square;
+let hero;
+let cursors;
+let wasd;
 
 function preload() {
   // nothing to preload yet
 }
 
 function create() {
-  square = this.add.rectangle(400, 300, 50, 50, 0xff0000);
+  hero = this.add.rectangle(400, 300, 40, 40, 0xff0000);
+  cursors = this.input.keyboard.createCursorKeys();
+  wasd = this.input.keyboard.addKeys({
+    up: Phaser.Input.Keyboard.KeyCodes.W,
+    down: Phaser.Input.Keyboard.KeyCodes.S,
+    left: Phaser.Input.Keyboard.KeyCodes.A,
+    right: Phaser.Input.Keyboard.KeyCodes.D
+  });
 }
 
 function update() {
-  // placeholder update loop
+  if (!hero || !cursors || !wasd) return;
+  const speed = 200;
+  const delta = this.game.loop.delta / 1000;
+  if (cursors.left.isDown || wasd.left.isDown) hero.x -= speed * delta;
+  if (cursors.right.isDown || wasd.right.isDown) hero.x += speed * delta;
+  if (cursors.up.isDown || wasd.up.isDown) hero.y -= speed * delta;
+  if (cursors.down.isDown || wasd.down.isDown) hero.y += speed * delta;
+  const width = this.sys.game.config.width;
+  const height = this.sys.game.config.height;
+  const halfW = hero.width / 2;
+  const halfH = hero.height / 2;
+  hero.x = Math.max(halfW, Math.min(width - halfW, hero.x));
+  hero.y = Math.max(halfH, Math.min(height - halfH, hero.y));
 }
 
 const game = new Phaser.Game(config);
