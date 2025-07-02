@@ -45,6 +45,7 @@ const config = {
 };
 
 let hero;
+let heroStats = { hp: 100, atk: 10 };
 let cursors;
 let wasd;
 let monsters = [];
@@ -63,8 +64,18 @@ function spawnMonsters(scene) {
       tileSize,
       0x00ff00
     );
-    return { sprite, tileX: pos.x, tileY: pos.y };
+    return { sprite, tileX: pos.x, tileY: pos.y, stats: { hp: 30 } };
   });
+}
+
+function enterBattle(monster) {
+  const combat = document.getElementById('combat-container');
+  if (!combat) return;
+  const heroEl = document.getElementById('hero-stats');
+  const monsterEl = document.getElementById('monster-stats');
+  if (heroEl) heroEl.textContent = `Hero HP: ${heroStats.hp}`;
+  if (monsterEl) monsterEl.textContent = `Monster HP: ${monster.stats.hp}`;
+  combat.style.display = 'block';
 }
 
 function preload() {
@@ -134,6 +145,7 @@ function update() {
     ) {
       inBattle = true;
       console.log('Battle start!');
+      enterBattle(m);
     }
   });
 }
@@ -266,6 +278,8 @@ if (typeof module !== 'undefined' && module.exports) {
     setInputs: (c, w) => { cursors = c; wasd = w; },
     getMonsters: () => monsters,
     setMonsters: m => { monsters = m; },
+    heroStats,
+    enterBattle,
     getBattleState: () => inBattle,
     setBattleState: b => { inBattle = b; }
   };
