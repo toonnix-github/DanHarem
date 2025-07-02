@@ -17,6 +17,14 @@ describe('validateRegistration', () => {
     expect(validateRegistration('user', 'test@example.com', 'pass')).toBe('Password must be at least 8 characters.');
   });
 
+  test('returns error when email is missing', () => {
+    expect(validateRegistration('user', '', 'password123')).toBe('Email is required.');
+  });
+
+  test('returns error when password is missing', () => {
+    expect(validateRegistration('user', 'test@example.com', '')).toBe('Password is required.');
+  });
+
   test('returns empty string for valid input', () => {
     expect(validateRegistration('user', 'test@example.com', 'password123')).toBe('');
   });
