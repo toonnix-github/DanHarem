@@ -45,7 +45,7 @@ const config = {
 };
 
 let hero;
-let heroStats = { hp: 100, atk: 10, defending: false };
+let heroStats = { hp: 100, mp: 30, atk: 10, level: 1, exp: 0, defending: false };
 let playerRewards = { exp: 0, gold: 0, items: [] };
 let cursors;
 let wasd;
@@ -146,9 +146,30 @@ function setCombatMessage(msg) {
   if (msgEl) msgEl.textContent = msg;
 }
 
+function xpForNextLevel(level) {
+  return 20 * level;
+}
+
+function checkLevelUp() {
+  let leveled = false;
+  while (heroStats.exp >= xpForNextLevel(heroStats.level)) {
+    heroStats.exp -= xpForNextLevel(heroStats.level);
+    heroStats.level += 1;
+    heroStats.hp += 10;
+    heroStats.mp += 5;
+    heroStats.atk += 2;
+    leveled = true;
+  }
+  if (leveled) {
+    const msgEl = document.getElementById('level-up-message');
+    if (msgEl) msgEl.textContent = `Level Up! Level ${heroStats.level}`;
+  }
+}
+
 function handleRewards() {
   const reward = { exp: 10 };
   playerRewards.exp += reward.exp;
+  heroStats.exp += reward.exp;
   const msgEl = document.getElementById('reward-message');
   const container = document.getElementById('reward-container');
   if (msgEl) msgEl.textContent = `Earned ${reward.exp} XP`;
@@ -156,8 +177,11 @@ function handleRewards() {
     container.style.display = 'block';
     setTimeout(() => {
       container.style.display = 'none';
+      const lvlMsg = document.getElementById('level-up-message');
+      if (lvlMsg) lvlMsg.textContent = '';
     }, 3000);
   }
+  checkLevelUp();
 }
 
 function animateAttack(attackerId, targetId) {

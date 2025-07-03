@@ -203,5 +203,9 @@ canvas {
   border: 1px solid #fff;
   display: none;
 }
+#reward-container #level-up-message {
+  margin-top: 5px;
+  font-weight: bold;
+}
 
 /*# sourceMappingURL=style.css.map */
