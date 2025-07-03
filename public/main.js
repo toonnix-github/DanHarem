@@ -75,6 +75,11 @@ function updateTurnIndicator() {
     indicator.textContent = turn === 'player' ? 'Player Turn' : 'Enemy Turn';
   }
   showTurnBanner(turn === 'player' ? 'Hero Turn' : 'Monster Turn');
+  const attackBtn = document.getElementById('attack-btn');
+  const defendBtn = document.getElementById('defend-btn');
+  const display = turn === 'player' ? 'inline-block' : 'none';
+  if (attackBtn) attackBtn.style.display = display;
+  if (defendBtn) defendBtn.style.display = display;
 }
 
 function endBattle(result) {
@@ -244,41 +249,41 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function enemyPhase(msg) {
+async function enemyPhase(initialMsg) {
   turn = 'enemy';
   updateTurnIndicator();
-  msg += ' Monster turn';
-  setCombatMessage(msg);
+  setCombatMessage(initialMsg + ' Monster turn');
   await delay(1000);
 
-  msg += ' \u2192 Monster selects action';
-  setCombatMessage(msg);
+  setCombatMessage('Monster selects action');
   await delay(1000);
 
-  msg += ' \u2192 Monster takes action';
-  setCombatMessage(msg);
+  setCombatMessage('Monster takes action');
   await delay(1000);
 
-  msg += ' ' + monsterTurn();
-  setCombatMessage(msg);
+  const attackMsg = monsterTurn();
+  setCombatMessage(attackMsg);
   await delay(1000);
 
   if (heroStats.hp <= 0) {
-    endBattle(msg + ' Hero defeated!');
-    return msg + ' Hero defeated!';
+    endBattle(attackMsg + ' Hero defeated!');
+    return attackMsg + ' Hero defeated!';
   }
 
   turn = 'player';
   updateTurnIndicator();
-  msg += ' \u2192 >>>';
-  setCombatMessage(msg);
+  setCombatMessage(attackMsg);
   await delay(1000);
 
-  return msg;
+  return attackMsg;
 }
 
 async function attackAction() {
   if (!currentMonster || turn !== 'player') return '';
+  const attackBtn = document.getElementById('attack-btn');
+  const defendBtn = document.getElementById('defend-btn');
+  if (attackBtn) attackBtn.style.display = 'none';
+  if (defendBtn) defendBtn.style.display = 'none';
   animateAttack('hero-img', 'monster-img', heroStats.atk);
   currentMonster.stats.hp -= heroStats.atk;
   updateCombatDisplay();
@@ -293,6 +298,10 @@ async function attackAction() {
 
 async function defendAction() {
   if (!currentMonster || turn !== 'player') return '';
+  const attackBtn = document.getElementById('attack-btn');
+  const defendBtn = document.getElementById('defend-btn');
+  if (attackBtn) attackBtn.style.display = 'none';
+  if (defendBtn) defendBtn.style.display = 'none';
   heroStats.defending = true;
   let msg = 'Hero defends.';
   return enemyPhase(msg);
