@@ -53,9 +53,10 @@ let monsters = [];
 let inBattle = false;
 let currentMonster = null;
 let turn = 'player';
+const RESPAWN_DELAY = 10000;
 const monsterSpawns = [
-  { x: 5, y: 5 },
-  { x: 10, y: 8 }
+  { x: 5, y: 5, nextSpawn: 0 },
+  { x: 10, y: 8, nextSpawn: 0 }
 ];
 
 function updateTurnIndicator() {
@@ -74,6 +75,7 @@ function endBattle(result) {
       currentMonster.sprite.destroy();
     }
     monsters = monsters.filter(m => m !== currentMonster);
+    scheduleRespawn(currentMonster);
   }
   currentMonster = null;
   turn = 'player';
@@ -81,16 +83,38 @@ function endBattle(result) {
   if (result) setCombatMessage(result);
 }
 
+function spawnMonsterAt(spawn, scene) {
+  const sprite = scene.add.rectangle(
+    spawn.x * tileSize + tileSize / 2,
+    spawn.y * tileSize + tileSize / 2,
+    tileSize,
+    tileSize,
+    0x00ff00
+  );
+  return { sprite, tileX: spawn.x, tileY: spawn.y, stats: { hp: 30, atk: 5 }, spawn };
+}
+
+function scheduleRespawn(monster) {
+  if (monster.spawn) {
+    monster.spawn.nextSpawn = Date.now() + RESPAWN_DELAY;
+  }
+}
+
 function spawnMonsters(scene) {
-  monsters = monsterSpawns.map(pos => {
-    const sprite = scene.add.rectangle(
-      pos.x * tileSize + tileSize / 2,
-      pos.y * tileSize + tileSize / 2,
-      tileSize,
-      tileSize,
-      0x00ff00
-    );
-    return { sprite, tileX: pos.x, tileY: pos.y, stats: { hp: 30, atk: 5 } };
+  monsters = monsterSpawns.map(spawn => {
+    spawn.nextSpawn = 0;
+    return spawnMonsterAt(spawn, scene);
+  });
+}
+
+function checkRespawns(scene) {
+  const now = Date.now();
+  monsterSpawns.forEach(spawn => {
+    const occupied = monsters.some(m => m.spawn === spawn);
+    if (!occupied && spawn.nextSpawn && now >= spawn.nextSpawn) {
+      monsters.push(spawnMonsterAt(spawn, scene));
+      spawn.nextSpawn = 0;
+    }
   });
 }
 
@@ -246,6 +270,7 @@ function create() {
 }
 
 function update() {
+  checkRespawns(this);
   if (!hero || !cursors || !wasd) return;
   const speed = 200;
   const delta = this.game.loop.delta / 1000;
@@ -434,7 +459,10 @@ if (typeof module !== 'undefined' && module.exports) {
     setTurn: t => { turn = t; },
     getBattleState: () => inBattle,
     setBattleState: b => { inBattle = b; },
-    playerRewards
+    playerRewards,
+    checkRespawns,
+    monsterSpawns,
+    RESPAWN_DELAY
   };
 }
 
