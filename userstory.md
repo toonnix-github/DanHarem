@@ -12,3 +12,4 @@
 - User Story 3d: Turn-Based Combat Initiation.
 - User Story 3e: Basic Combat Actions.
 - User Story 9: Reward System After Combat.
+- User Story 11: Hero Leveling and Stats Progression.

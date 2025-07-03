@@ -209,4 +209,9 @@ canvas {
   padding: 10px;
   border: 1px solid variables.$text-color;
   display: none;
+
+  #level-up-message {
+    margin-top: 5px;
+    font-weight: bold;
+  }
 }
