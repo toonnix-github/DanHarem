@@ -7,8 +7,8 @@ beforeEach(() => {
   ({ equipWeapon, heroEquipment, updateEquipmentUI } = require('../public/main.js'));
   document.body.innerHTML = `
     <div id="equipment-container">
-      <div id="left-hand-slot"></div>
-      <div id="right-hand-slot"></div>
+      <div>Left Hand: <span id="left-hand-slot"></span></div>
+      <div>Right Hand: <span id="right-hand-slot"></span></div>
     </div>`;
   updateEquipmentUI();
 });
@@ -18,7 +18,7 @@ test('equip one-handed weapon to left slot', () => {
   equipWeapon('left', dagger);
   expect(heroEquipment.left).toBe(dagger);
   expect(heroEquipment.right).toBeNull();
-  expect(document.getElementById('left-hand-slot').textContent).toBe('Dagger (3)');
+  expect(document.getElementById('left-hand-slot').textContent).toBe('Dagger (3) - 100%');
   expect(document.getElementById('right-hand-slot').textContent).toBe('Empty');
 });
 
@@ -27,8 +27,8 @@ test('two-handed weapon occupies both slots', () => {
   equipWeapon('right', gs);
   expect(heroEquipment.left).toBe(gs);
   expect(heroEquipment.right).toBe(gs);
-  expect(document.getElementById('left-hand-slot').textContent).toBe('Greatsword (8)');
-  expect(document.getElementById('right-hand-slot').textContent).toBe('Greatsword (8)');
+  expect(document.getElementById('left-hand-slot').textContent).toBe('Greatsword (8) - 100%');
+  expect(document.getElementById('right-hand-slot').textContent).toBe('Greatsword (8) - 100%');
 });
 
 test('equipping one-handed clears two-handed weapon', () => {
@@ -38,7 +38,7 @@ test('equipping one-handed clears two-handed weapon', () => {
   equipWeapon('left', sword);
   expect(heroEquipment.left).toBe(sword);
   expect(heroEquipment.right).toBeNull();
-  expect(document.getElementById('left-hand-slot').textContent).toBe('Sword (5)');
+  expect(document.getElementById('left-hand-slot').textContent).toBe('Sword (5) - 100%');
   expect(document.getElementById('right-hand-slot').textContent).toBe('Empty');
 });
 
@@ -51,8 +51,8 @@ test('equipping two-handed weapon replaces both one-handed weapons', () => {
   equipWeapon('left', gs);
   expect(heroEquipment.left).toBe(gs);
   expect(heroEquipment.right).toBe(gs);
-  expect(document.getElementById('left-hand-slot').textContent).toBe('Greatsword (8)');
-  expect(document.getElementById('right-hand-slot').textContent).toBe('Greatsword (8)');
+  expect(document.getElementById('left-hand-slot').textContent).toBe('Greatsword (8) - 100%');
+  expect(document.getElementById('right-hand-slot').textContent).toBe('Greatsword (8) - 100%');
 });
 
 test('one-handed weapons equip independently', () => {
@@ -62,6 +62,6 @@ test('one-handed weapons equip independently', () => {
   equipWeapon('right', dagger);
   expect(heroEquipment.left).toBe(sword);
   expect(heroEquipment.right).toBe(dagger);
-  expect(document.getElementById('left-hand-slot').textContent).toBe('Sword (5)');
-  expect(document.getElementById('right-hand-slot').textContent).toBe('Dagger (3)');
+  expect(document.getElementById('left-hand-slot').textContent).toBe('Sword (5) - 100%');
+  expect(document.getElementById('right-hand-slot').textContent).toBe('Dagger (3) - 100%');
 });
