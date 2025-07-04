@@ -396,6 +396,36 @@ function animateAttack(attackerId, targetId, damage, isCritical = false) {
   }, 300);
 }
 
+function animateFireball(attackerId, targetId, damage, isCritical = false) {
+  const attacker = document.getElementById(attackerId);
+  const target = document.getElementById(targetId);
+  const container = document.getElementById('combat-container');
+  if (!attacker || !target || !container) {
+    if (damage != null) showDamage(targetId, damage, isCritical);
+    return Promise.resolve();
+  }
+  const aRect = attacker.getBoundingClientRect();
+  const tRect = target.getBoundingClientRect();
+  const cRect = container.getBoundingClientRect();
+  const fireball = document.createElement('div');
+  fireball.className = 'fireball';
+  fireball.style.left = `${aRect.left - cRect.left + aRect.width / 2}px`;
+  fireball.style.top = `${aRect.top - cRect.top + aRect.height / 2}px`;
+  container.appendChild(fireball);
+  const dx = tRect.left - aRect.left;
+  const dy = tRect.top - aRect.top;
+  requestAnimationFrame(() => {
+    fireball.style.transform = `translate(${dx}px, ${dy}px)`;
+  });
+  return new Promise(resolve => {
+    setTimeout(() => {
+      if (damage != null) showDamage(targetId, damage, isCritical);
+      fireball.remove();
+      resolve();
+    }, 300);
+  });
+}
+
 function monsterTurn() {
   if (!currentMonster) return '';
   let damage = currentMonster.stats.atk;
@@ -490,7 +520,7 @@ async function castFireballAction() {
   if (fireballBtn) fireballBtn.style.display = 'none';
   heroStats.mp -= FIREBALL_COST;
   const damage = fireballDamage();
-  animateAttack('hero-img','monster-img', damage, false);
+  await animateFireball('hero-img','monster-img', damage, false);
   currentMonster.stats.hp -= damage;
   updateCombatDisplay();
   let msg = `Hero casts Fireball! Monster HP is ${currentMonster.stats.hp}.`;
@@ -784,6 +814,7 @@ if (typeof module !== 'undefined' && module.exports) {
     weaponDamage,
     heroAttackPower,
     fireballDamage,
+    animateFireball,
     updateTurnIndicator,
     getTurn: () => turn,
     setTurn: t => { turn = t; },
