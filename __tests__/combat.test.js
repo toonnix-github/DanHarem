@@ -60,6 +60,18 @@ test('attackAction damages monster and hero takes damage', async () => {
   expect(document.getElementById('turn-indicator').textContent).toBe('Player Turn');
 });
 
+ test('critical hit deals bonus damage', async () => {
+   const monster = { stats: { hp: 30, maxHp: 30, atk: 0 } };
+   heroStats.critChance = 1;
+   heroStats.critMultiplier = 2;
+   enterBattle(monster);
+   const promise = attackAction();
+   expect(document.querySelector(".damage-number.critical")).not.toBeNull();
+   await flushTimers();
+   await promise;
+   expect(monster.stats.hp).toBe(30 - heroStats.atk * heroStats.critMultiplier);
+ });
+
 test('defendAction reduces incoming damage', async () => {
   const monster = { stats: { hp: 30, maxHp: 30, atk: 5 } };
   enterBattle(monster);

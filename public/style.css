@@ -267,6 +267,10 @@ canvas {
   animation: float-up 1s forwards ease-out;
   transform: translateX(-50%);
 }
+#combat-container .damage-number.critical {
+  color: yellow;
+  text-shadow: 0 0 5px #fff;
+}
 @keyframes defeat-fade {
   0% {
     opacity: 1;
