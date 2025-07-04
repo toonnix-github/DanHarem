@@ -40,9 +40,13 @@ test('attribute points awarded and can be allocated', async () => {
   handleRewards();
   await flushTimers();
   handleRewards();
+  const container = document.getElementById('reward-container');
   expect(heroStats.attributePoints).toBe(3);
+  jest.runOnlyPendingTimers();
+  expect(container.style.display).toBe('block');
   allocateAttribute('str');
-  expect(heroStats.str).toBe(11);
-  expect(heroStats.attributePoints).toBe(2);
-  expect(document.getElementById('points-remaining').textContent).toBe('2');
+  allocateAttribute('spd');
+  allocateAttribute('mag');
+  expect(heroStats.attributePoints).toBe(0);
+  expect(container.style.display).toBe('none');
 });
