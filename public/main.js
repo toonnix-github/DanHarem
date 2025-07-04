@@ -399,15 +399,15 @@ function animateAttack(attackerId, targetId, damage, isCritical = false) {
   attacker.classList.add('attacking');
   attacker.style.transition = 'transform 0.3s ease-out';
   attacker.style.transform = `translateX(${distance}px)`;
-  if (target) target.classList.add('damaged');
-  if (damage != null) showDamage(targetId, damage, isCritical);
   setTimeout(() => {
+    if (target) target.classList.add('damaged');
+    if (damage != null) showDamage(targetId, damage, isCritical);
     attacker.style.transform = 'translateX(0)';
     setTimeout(() => {
       attacker.classList.remove('attacking');
       attacker.style.transition = '';
+      if (target) target.classList.remove('damaged');
     }, 300);
-    if (target) target.classList.remove('damaged');
   }, 300);
 }
 

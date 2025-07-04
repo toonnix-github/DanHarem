@@ -285,9 +285,6 @@ canvas {
     transform: translate(-50%, -40px);
   }
 }
-#combat-container .attacking {
-  animation: shake 0.3s ease-in-out;
-}
 #combat-container .damaged {
   animation: shake 0.3s ease-in-out;
 }
