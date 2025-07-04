@@ -409,20 +409,32 @@ function animateFireball(attackerId, targetId, damage, isCritical = false) {
   const cRect = container.getBoundingClientRect();
   const fireball = document.createElement('div');
   fireball.className = 'fireball';
-  fireball.style.left = `${aRect.left - cRect.left + aRect.width / 2}px`;
-  fireball.style.top = `${aRect.top - cRect.top + aRect.height / 2}px`;
+  const startX = aRect.left - cRect.left + aRect.width / 2;
+  const startY = aRect.top - cRect.top + aRect.height / 2;
+  const endX = tRect.left - cRect.left + tRect.width / 2;
+  const endY = tRect.top - cRect.top + tRect.height / 2;
+  fireball.style.left = `${startX}px`;
+  fireball.style.top = `${startY}px`;
   container.appendChild(fireball);
-  const dx = tRect.left - aRect.left;
-  const dy = tRect.top - aRect.top;
-  requestAnimationFrame(() => {
-    fireball.style.transform = `translate(${dx}px, ${dy}px)`;
-  });
+  const duration = 600;
+  const peak = -50;
   return new Promise(resolve => {
-    setTimeout(() => {
-      if (damage != null) showDamage(targetId, damage, isCritical);
-      fireball.remove();
-      resolve();
-    }, 300);
+    const startTime = performance.now();
+    function step(time) {
+      const t = Math.min((time - startTime) / duration, 1);
+      const x = startX + (endX - startX) * t;
+      const y = startY + (endY - startY) * t + peak * Math.sin(Math.PI * t);
+      fireball.style.left = `${x}px`;
+      fireball.style.top = `${y}px`;
+      if (t < 1) {
+        requestAnimationFrame(step);
+      } else {
+        if (damage != null) showDamage(targetId, damage, isCritical);
+        fireball.remove();
+        resolve();
+      }
+    }
+    requestAnimationFrame(step);
   });
 }
 

@@ -319,7 +319,6 @@ canvas {
   border-radius: 50%;
   background: radial-gradient(circle, orange 0%, red 60%, darkred 100%);
   pointer-events: none;
-  transition: transform 0.3s linear;
 }
 #combat-container #combat-controls {
   position: absolute;

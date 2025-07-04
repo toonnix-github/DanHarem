@@ -312,7 +312,7 @@ canvas {
     border-radius: 50%;
     background: radial-gradient(circle, orange 0%, red 60%, darkred 100%);
     pointer-events: none;
-    transition: transform 0.3s linear;
+    // animation handled via JS for a parabolic arc
   }
 
   #combat-controls {
