@@ -22,8 +22,8 @@ beforeEach(() => {
         <button id="attack-btn">Attack</button>
         <button id="defend-btn">Defend</button>
         <div id="turn-indicator"></div>
-        <div id="combat-message"></div>
       </div>
+      <div id="combat-message"></div>
     </div>
     <div id="reward-container"><div id="reward-message"></div></div>`;
 });
@@ -49,7 +49,7 @@ test('attackAction damages monster and hero takes damage', async () => {
   const monster = { stats: { hp: 30, atk: 5 } };
   enterBattle(monster);
   const promise = attackAction();
-  expect(document.getElementById('turn-indicator').textContent).toBe('Enemy Turn');
+  expect(document.getElementById('turn-indicator').textContent).toBe('Player Turn');
   await flushTimers();
   await promise;
   expect(monster.stats.hp).toBe(20);
@@ -62,7 +62,7 @@ test('defendAction reduces incoming damage', async () => {
   const monster = { stats: { hp: 30, atk: 5 } };
   enterBattle(monster);
   const promise = defendAction();
-  expect(document.getElementById('turn-indicator').textContent).toBe('Enemy Turn');
+  expect(document.getElementById('turn-indicator').textContent).toBe('Player Turn');
   await flushTimers();
   await promise;
   expect(heroStats.hp).toBe(98);
@@ -92,14 +92,14 @@ test('rewards granted after defeating monster', async () => {
   expect(document.getElementById('reward-container').style.display).toBe('none');
 });
 
-test('monster action delayed with five 1 second steps', async () => {
+test('monster action delayed with six 1 second steps', async () => {
   const monster = { stats: { hp: 30, atk: 5 } };
   enterBattle(monster);
   const spy = jest.spyOn(global, 'setTimeout');
   const promise = attackAction();
   await flushTimers();
   const oneSecondCalls = spy.mock.calls.filter(c => c[1] === 1000);
-  expect(oneSecondCalls.length).toBe(5);
+  expect(oneSecondCalls.length).toBe(6);
   await promise;
   spy.mockRestore();
 });
