@@ -7,8 +7,12 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="hero-hud"></div>
-  <div id="equipment-container">
+  <div id="hero-hud" class="card">
+    <h3>Hero Stats</h3>
+    <div id="hero-hud-content"></div>
+  </div>
+  <div id="equipment-container" class="card">
+    <h3>Equipment</h3>
     <div id="left-hand-slot" class="weapon-slot">Empty</div>
     <div id="right-hand-slot" class="weapon-slot">Empty</div>
   </div>
@@ -70,7 +74,8 @@
     <button id="job-continue">Continue</button>
   </div>
 
-    <div id="combat-container">
+  <div id="combat-container" class="card">
+      <h3>Battle</h3>
       <div id="turn-banner"></div>
       <div class="battle-panel">
         <div class="combatant">
@@ -89,11 +94,13 @@
       </div>
       <div id="combat-message"></div>
     </div>
-    <div id="reward-container">
+  <div id="reward-container" class="card">
+      <h3>Rewards</h3>
       <div id="reward-message"></div>
       <div id="level-up-message"></div>
     </div>
-    <div id="attribute-container">
+  <div id="attribute-container" class="card">
+      <h3>Attributes</h3>
       <div>Points left: <span id="points-remaining">0</span></div>
       <button id="str-plus">STR +</button>
       <button id="spd-plus">SPD +</button>

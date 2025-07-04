@@ -100,7 +100,7 @@ function updateTurnIndicator() {
 }
 
 function updateHeroHUD() {
-  const hud = document.getElementById('hero-hud');
+  const hud = document.getElementById('hero-hud-content');
   if (!hud) return;
   const name = localStorage.getItem('username') || 'Hero';
   hud.innerHTML =
