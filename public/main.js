@@ -61,6 +61,7 @@ let heroStats = {
   critChance: 0.1,
   critMultiplier: 1.5,
 };
+let heroEquipment = { left: null, right: null };
 let playerRewards = { exp: 0, gold: 0, items: [] };
 let cursors;
 let wasd;
@@ -105,6 +106,13 @@ function updateHeroHUD() {
     `<div>STR: ${heroStats.str} SPD: ${heroStats.spd} MAG: ${heroStats.mag}</div>`;
 }
 
+function updateEquipmentUI() {
+  const leftSlot = document.getElementById('left-hand-slot');
+  const rightSlot = document.getElementById('right-hand-slot');
+  if (leftSlot) leftSlot.textContent = heroEquipment.left ? heroEquipment.left.name : 'Empty';
+  if (rightSlot) rightSlot.textContent = heroEquipment.right ? heroEquipment.right.name : 'Empty';
+}
+
 function updateAttributeUI() {
   const container = document.getElementById('attribute-container');
   const span = document.getElementById('points-remaining');
@@ -121,6 +129,25 @@ function allocateAttribute(stat) {
     updateHeroHUD();
     updateAttributeUI();
   }
+}
+
+function equipWeapon(slot, weapon) {
+  if (!weapon || (slot !== 'left' && slot !== 'right')) return;
+  if (weapon.twoHanded) {
+    heroEquipment.left = weapon;
+    heroEquipment.right = weapon;
+  } else {
+    if (heroEquipment.left && heroEquipment.left.twoHanded) {
+      heroEquipment.left = null;
+      heroEquipment.right = null;
+    }
+    if (heroEquipment.right && heroEquipment.right.twoHanded) {
+      heroEquipment.left = null;
+      heroEquipment.right = null;
+    }
+    heroEquipment[slot] = weapon;
+  }
+  updateEquipmentUI();
 }
 
 function updateHPBars() {
@@ -628,6 +655,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initPhase();
   updateHeroHUD();
   updateAttributeUI();
+  updateEquipmentUI();
 });
 
 // expose functions for testing
@@ -652,6 +680,9 @@ if (typeof module !== 'undefined' && module.exports) {
     updateHeroHUD,
     updateAttributeUI,
     allocateAttribute,
+    equipWeapon,
+    heroEquipment,
+    updateEquipmentUI,
     updateTurnIndicator,
     getTurn: () => turn,
     setTurn: t => { turn = t; },
