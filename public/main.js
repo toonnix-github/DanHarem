@@ -61,6 +61,7 @@ let heroStats = {
   critMultiplier: 1.5,
 };
 let heroEquipment = { left: null, right: null };
+const DEFAULT_RESISTANCES = { Physical: 0, Fire: 0, Water: 0 };
 const DURABILITY_LOSS_PER_USE = 5;
 const FIREBALL_COST = 10;
 const FIREBALL_BASE_DAMAGE = 5;
@@ -149,6 +150,16 @@ function updateHeroHUD() {
     `<div>STR: ${heroStats.str} SPD: ${heroStats.spd} MAG: ${heroStats.mag}</div>`;
 }
 
+function updateMonsterInfo() {
+  const info = document.getElementById('monster-info');
+  if (!info || !currentMonster) return;
+  const res = currentMonster.resistances || {};
+  const entries = Object.keys(res)
+    .map(k => `${k} ${Math.round(res[k] * 100)}%`)
+    .join(' ');
+  info.textContent = `Element: ${currentMonster.element || 'Unknown'} | ${entries}`;
+}
+
 function updateEquipmentUI() {
   const leftSlot = document.getElementById('left-hand-slot');
   const rightSlot = document.getElementById('right-hand-slot');
@@ -230,6 +241,11 @@ function fireballDamage() {
   return FIREBALL_BASE_DAMAGE + heroStats.mag;
 }
 
+function applyResistance(monster, dmg, element) {
+  const res = monster.resistances?.[element] ?? 0;
+  return Math.floor(dmg * (1 - res));
+}
+
 function assignDefaultWeapon(job) {
   const weapon = defaultWeapons[job];
   if (weapon) {
@@ -290,13 +306,27 @@ function spawnMonsterAt(spawn, scene) {
       0x00ff00
     );
   }
-  return { sprite, tileX: spawn.x, tileY: spawn.y, stats: { hp: 30, maxHp: 30, atk: 5, critChance: 0, critMultiplier: 1.5 }, spawn };
+  return {
+    sprite,
+    tileX: spawn.x,
+    tileY: spawn.y,
+    element: spawn.element || 'Physical',
+    resistances: { ...DEFAULT_RESISTANCES, ...(spawn.resistances || {}) },
+    stats: { hp: 30, maxHp: 30, atk: 5, critChance: 0, critMultiplier: 1.5 },
+    spawn
+  };
 }
 
 function scheduleRespawn(monster) {
   if (monster.spawn) {
     monster.spawn.nextSpawn = Date.now() + RESPAWN_DELAY;
   }
+}
+
+function modifyMonsterResistance(monster, element, delta) {
+  if (!monster.resistances) monster.resistances = { ...DEFAULT_RESISTANCES };
+  monster.resistances[element] = (monster.resistances[element] || 0) + delta;
+  updateMonsterInfo();
 }
 
 function spawnMonsters(scene) {
@@ -328,6 +358,7 @@ function enterBattle(monster) {
   if (heroEl) heroEl.className = 'hp-bar';
   if (monsterEl) monsterEl.className = 'hp-bar';
   updateHPBars();
+  updateMonsterInfo();
   combat.style.display = 'block';
   const msgEl = document.getElementById('combat-message');
   if (msgEl) msgEl.textContent = 'Battle started!';
@@ -537,6 +568,7 @@ async function attackAction() {
   let damage = heroAttackPower();
   const crit = Math.random() < heroStats.critChance;
   if (crit) damage = Math.floor(damage * heroStats.critMultiplier);
+  damage = applyResistance(currentMonster, damage, 'Physical');
   animateAttack('hero-img','monster-img', damage, crit);
   currentMonster.stats.hp -= damage;
   if (heroEquipment.left) degradeWeapon(heroEquipment.left);
@@ -571,7 +603,8 @@ async function castFireballAction() {
   if (defendBtn) defendBtn.style.display = 'none';
   if (fireballBtn) fireballBtn.style.display = 'none';
   heroStats.mp -= FIREBALL_COST;
-  const damage = fireballDamage();
+  let damage = fireballDamage();
+  damage = applyResistance(currentMonster, damage, 'Fire');
   await animateFireball('hero-img','monster-img', damage, false);
   currentMonster.stats.hp -= damage;
   updateCombatDisplay();
@@ -608,6 +641,7 @@ async function doubleShotAction() {
     let damage = heroAttackPower();
     const crit = Math.random() < heroStats.critChance;
     if (crit) damage = Math.floor(damage * heroStats.critMultiplier);
+    damage = applyResistance(currentMonster, damage, 'Physical');
     animateAttack('hero-img', 'monster-img', damage, crit);
     currentMonster.stats.hp -= damage;
     totalDamage += damage;
@@ -648,6 +682,7 @@ async function shieldBashAction() {
   });
   skillCooldowns.shieldBash = 4;
   let damage = Math.floor(heroAttackPower() * 0.8);
+  damage = applyResistance(currentMonster, damage, 'Physical');
   animateAttack('hero-img', 'monster-img', damage, false);
   currentMonster.stats.hp -= damage;
   if (heroEquipment.left) degradeWeapon(heroEquipment.left);
@@ -959,6 +994,8 @@ if (typeof module !== 'undefined' && module.exports) {
     heroAttackPower,
     fireballDamage,
     animateFireball,
+    updateMonsterInfo,
+    modifyMonsterResistance,
     doubleShotAction,
     shieldBashAction,
     skillCooldowns,

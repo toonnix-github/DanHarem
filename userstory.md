@@ -50,3 +50,14 @@ a cooldown timer tracked between turns. Buttons display remaining cooldown and a
 hidden for other jobs. Shield Bash can stun or weaken the enemy for one turn.
 Cooldown counters decrease after the enemy phase. Unit tests cover damage, stun
 behavior, cooldown updates, and job-specific visibility.
+
+### User Story 21a Notes
+Enemies now have elemental attributes and resistance percentages. Each monster
+is created with an `element` field and a `resistances` map merging defaults for
+Physical, Fire and Water. The combat UI includes a **monster-info** section that
+shows the element and current resistances. Damage from attacks or spells is
+reduced according to these values via `applyResistance`. A helper
+`modifyMonsterResistance` allows buffs or debuffs to adjust resistances during
+battle and updates the display immediately. Unit tests verify that monsters are
+spawned with these properties, the UI reflects them, damage calculations respect
+resistances and changes apply correctly.
