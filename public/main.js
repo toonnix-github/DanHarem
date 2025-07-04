@@ -70,6 +70,7 @@ const defaultWeapons = {
   Mage: { name: 'Staff', type: 'staff', twoHanded: true, baseDamage: 3 }
 };
 let playerRewards = { exp: 0, gold: 0, items: [] };
+let skillCooldowns = { doubleShot: 0, shieldBash: 0 };
 let cursors;
 let wasd;
 let monsters = [];
@@ -97,14 +98,44 @@ function updateTurnIndicator() {
   showTurnBanner(turn === 'player' ? 'Hero Turn' : 'Enemy Turn');
   const attackBtn = document.getElementById('attack-btn');
   const defendBtn = document.getElementById('defend-btn');
-  const fireballBtn = document.getElementById('fireball-btn');
   const display = turn === 'player' ? 'inline-block' : 'none';
   if (attackBtn) attackBtn.style.display = display;
   if (defendBtn) defendBtn.style.display = display;
+  updateSkillButtons();
+}
+
+function updateSkillButtons() {
+  const job = localStorage.getItem('selectedJob');
+  const fireballBtn = document.getElementById('fireball-btn');
+  const doubleBtn = document.getElementById('double-shot-btn');
+  const bashBtn = document.getElementById('shield-bash-btn');
+  const display = turn === 'player' ? 'inline-block' : 'none';
   if (fireballBtn) {
-    fireballBtn.style.display = display;
+    fireballBtn.style.display = job === 'Mage' ? display : 'none';
     fireballBtn.disabled = heroStats.mp < FIREBALL_COST;
   }
+  if (doubleBtn) {
+    doubleBtn.style.display = job === 'Ranger' ? display : 'none';
+    doubleBtn.disabled = skillCooldowns.doubleShot > 0;
+    doubleBtn.textContent =
+      skillCooldowns.doubleShot > 0
+        ? `Double Shot (${skillCooldowns.doubleShot})`
+        : 'Double Shot';
+  }
+  if (bashBtn) {
+    bashBtn.style.display = job === 'Knight' ? display : 'none';
+    bashBtn.disabled = skillCooldowns.shieldBash > 0;
+    bashBtn.textContent =
+      skillCooldowns.shieldBash > 0
+        ? `Shield Bash (${skillCooldowns.shieldBash})`
+        : 'Shield Bash';
+  }
+}
+
+function decrementCooldowns() {
+  Object.keys(skillCooldowns).forEach(k => {
+    if (skillCooldowns[k] > 0) skillCooldowns[k]--;
+  });
 }
 
 function updateHeroHUD() {
@@ -382,32 +413,17 @@ function showDamage(targetId, amount, isCritical = false) {
 function animateAttack(attackerId, targetId, damage, isCritical = false) {
   const attacker = document.getElementById(attackerId);
   const target = document.getElementById(targetId);
-  if (!attacker) {
-    if (target) target.classList.add('damaged');
-    if (damage != null) showDamage(targetId, damage, isCritical);
-    setTimeout(() => {
-      if (target) target.classList.remove('damaged');
-    }, 300);
-    return;
+  if (attacker) {
+    const cls = attackerId === 'hero-img' ? 'lunge-left' : 'lunge-right';
+    attacker.classList.add('attacking', cls);
   }
-  const aRect = attacker.getBoundingClientRect();
-  const tRect = target.getBoundingClientRect();
-  const distance =
-    attackerId === 'hero-img'
-      ? tRect.left - aRect.left - aRect.width * 0.5
-      : tRect.left - aRect.left + tRect.width * 0.5;
-  attacker.classList.add('attacking');
-  attacker.style.transition = 'transform 0.3s ease-out';
-  attacker.style.transform = `translateX(${distance}px)`;
+  if (target) target.classList.add('damaged');
+  if (damage != null) showDamage(targetId, damage, isCritical);
   setTimeout(() => {
-    if (target) target.classList.add('damaged');
-    if (damage != null) showDamage(targetId, damage, isCritical);
-    attacker.style.transform = 'translateX(0)';
-    setTimeout(() => {
-      attacker.classList.remove('attacking');
-      attacker.style.transition = '';
-      if (target) target.classList.remove('damaged');
-    }, 300);
+    if (attacker) {
+      attacker.classList.remove('attacking', 'lunge-left', 'lunge-right');
+    }
+    if (target) target.classList.remove('damaged');
   }, 300);
 }
 
@@ -455,7 +471,15 @@ function animateFireball(attackerId, targetId, damage, isCritical = false) {
 
 function monsterTurn() {
   if (!currentMonster) return '';
+  if (currentMonster.stunned) {
+    currentMonster.stunned = false;
+    return 'Monster is stunned and cannot act.';
+  }
   let damage = currentMonster.stats.atk;
+  if (currentMonster.atkPenalty) {
+    damage = Math.floor(damage / 2);
+    currentMonster.atkPenalty--;
+  }
   const crit = Math.random() < (currentMonster.stats.critChance || 0);
   if (crit) damage = Math.floor(damage * (currentMonster.stats.critMultiplier || 1.5));
   if (heroStats.defending) {
@@ -494,6 +518,7 @@ async function enemyPhase(initialMsg) {
   }
 
   turn = 'player';
+  decrementCooldowns();
   updateTurnIndicator();
   setCombatMessage(attackMsg);
   await delay(1000);
@@ -561,6 +586,93 @@ async function castFireballAction() {
       endBattle(finalMsg);
       if (mImg) mImg.classList.remove('defeated');
     });
+    return finalMsg;
+  }
+  await delay(1000);
+  return enemyPhase(msg);
+}
+
+async function doubleShotAction() {
+  if (!currentMonster || turn !== 'player' || skillCooldowns.doubleShot > 0) return '';
+  const attackBtn = document.getElementById('attack-btn');
+  const defendBtn = document.getElementById('defend-btn');
+  const doubleBtn = document.getElementById('double-shot-btn');
+  const bashBtn = document.getElementById('shield-bash-btn');
+  const fireballBtn = document.getElementById('fireball-btn');
+  [attackBtn, defendBtn, doubleBtn, bashBtn, fireballBtn].forEach(btn => {
+    if (btn) btn.style.display = 'none';
+  });
+  skillCooldowns.doubleShot = 3;
+  let totalDamage = 0;
+  for (let i = 0; i < 2; i++) {
+    let damage = heroAttackPower();
+    const crit = Math.random() < heroStats.critChance;
+    if (crit) damage = Math.floor(damage * heroStats.critMultiplier);
+    animateAttack('hero-img', 'monster-img', damage, crit);
+    currentMonster.stats.hp -= damage;
+    totalDamage += damage;
+    if (heroEquipment.left) degradeWeapon(heroEquipment.left);
+    if (heroEquipment.right && heroEquipment.right !== heroEquipment.left) {
+      degradeWeapon(heroEquipment.right);
+    }
+    updateEquipmentUI();
+    updateCombatDisplay();
+    if (currentMonster.stats.hp <= 0) break;
+    await delay(300);
+  }
+  let msg = `Hero uses Double Shot! Monster HP is ${currentMonster.stats.hp}.`;
+  setCombatMessage(msg);
+  if (currentMonster.stats.hp <= 0) {
+    const finalMsg = 'Hero uses Double Shot! Monster defeated!';
+    setCombatMessage(finalMsg);
+    const mImg = document.getElementById('monster-img');
+    if (mImg) mImg.classList.add('defeated');
+    await handleRewards();
+    endBattle(finalMsg);
+    if (mImg) mImg.classList.remove('defeated');
+    return finalMsg;
+  }
+  await delay(1000);
+  return enemyPhase(msg);
+}
+
+async function shieldBashAction() {
+  if (!currentMonster || turn !== 'player' || skillCooldowns.shieldBash > 0) return '';
+  const attackBtn = document.getElementById('attack-btn');
+  const defendBtn = document.getElementById('defend-btn');
+  const doubleBtn = document.getElementById('double-shot-btn');
+  const bashBtn = document.getElementById('shield-bash-btn');
+  const fireballBtn = document.getElementById('fireball-btn');
+  [attackBtn, defendBtn, doubleBtn, bashBtn, fireballBtn].forEach(btn => {
+    if (btn) btn.style.display = 'none';
+  });
+  skillCooldowns.shieldBash = 4;
+  let damage = Math.floor(heroAttackPower() * 0.8);
+  animateAttack('hero-img', 'monster-img', damage, false);
+  currentMonster.stats.hp -= damage;
+  if (heroEquipment.left) degradeWeapon(heroEquipment.left);
+  if (heroEquipment.right && heroEquipment.right !== heroEquipment.left) {
+    degradeWeapon(heroEquipment.right);
+  }
+  updateEquipmentUI();
+  updateCombatDisplay();
+  let msg = `Hero uses Shield Bash! Monster HP is ${currentMonster.stats.hp}.`;
+  if (Math.random() < 0.5) {
+    currentMonster.stunned = true;
+    msg = `Hero uses Shield Bash! Monster stunned. HP is ${currentMonster.stats.hp}.`;
+  } else {
+    currentMonster.atkPenalty = 1;
+    msg = `Hero uses Shield Bash! Monster weakened. HP is ${currentMonster.stats.hp}.`;
+  }
+  setCombatMessage(msg);
+  if (currentMonster.stats.hp <= 0) {
+    const finalMsg = 'Hero uses Shield Bash! Monster defeated!';
+    setCombatMessage(finalMsg);
+    const mImg = document.getElementById('monster-img');
+    if (mImg) mImg.classList.add('defeated');
+    await handleRewards();
+    endBattle(finalMsg);
+    if (mImg) mImg.classList.remove('defeated');
     return finalMsg;
   }
   await delay(1000);
@@ -693,6 +805,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const attackBtn = document.getElementById('attack-btn');
   const defendBtn = document.getElementById('defend-btn');
   const fireballBtn = document.getElementById('fireball-btn');
+  const doubleShotBtn = document.getElementById('double-shot-btn');
+  const shieldBashBtn = document.getElementById('shield-bash-btn');
   const strBtn = document.getElementById('str-plus');
   const spdBtn = document.getElementById('spd-plus');
   const magBtn = document.getElementById('mag-plus');
@@ -777,6 +891,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (attackBtn) attackBtn.addEventListener('click', attackAction);
   if (defendBtn) defendBtn.addEventListener('click', defendAction);
   if (fireballBtn) fireballBtn.addEventListener('click', castFireballAction);
+  if (doubleShotBtn) doubleShotBtn.addEventListener('click', doubleShotAction);
+  if (shieldBashBtn) shieldBashBtn.addEventListener('click', shieldBashAction);
   if (strBtn) strBtn.addEventListener('click', () => allocateAttribute('str'));
   if (spdBtn) spdBtn.addEventListener('click', () => allocateAttribute('spd'));
   if (magBtn) magBtn.addEventListener('click', () => allocateAttribute('mag'));
@@ -809,6 +925,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateHeroHUD();
   updateAttributeUI();
   updateEquipmentUI();
+  updateSkillButtons();
 });
 
 // expose functions for testing
@@ -842,6 +959,11 @@ if (typeof module !== 'undefined' && module.exports) {
     heroAttackPower,
     fireballDamage,
     animateFireball,
+    doubleShotAction,
+    shieldBashAction,
+    skillCooldowns,
+    updateSkillButtons,
+    decrementCooldowns,
     updateTurnIndicator,
     getTurn: () => turn,
     setTurn: t => { turn = t; },
