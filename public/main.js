@@ -296,8 +296,11 @@ async function attackAction() {
   if (currentMonster.stats.hp <= 0) {
     const finalMsg = msg + ' Monster defeated!';
     setCombatMessage(finalMsg);
+    const mImg = document.getElementById('monster-img');
+    if (mImg) mImg.classList.add('defeated');
     handleRewards().then(() => {
       endBattle(finalMsg);
+      if (mImg) mImg.classList.remove('defeated');
     });
     return finalMsg;
   }
