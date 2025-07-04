@@ -15,3 +15,4 @@
 - User Story 10: Monster Respawn System.
 - User Story 11: Hero Leveling and Stats Progression.
 - User Story 16: Hero Attribute Allocation.
+- User Story 22f: Weapon Equip Logic for One-Handed and Two-Handed Weapons.
