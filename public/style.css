@@ -1,15 +1,15 @@
-body {
+.app-body {
   font-family: Arial, sans-serif;
   color: #fff;
 }
 
-body {
+.app-body {
   margin: 0;
   padding: 0;
   background-color: #1d212d;
 }
 
-canvas {
+.game-canvas {
   display: block;
   margin: 0 auto;
 }
@@ -76,9 +76,7 @@ canvas {
   gap: 10px;
   width: 300px;
 }
-#registration-form input[type=text],
-#registration-form input[type=email],
-#registration-form input[type=password] {
+#registration-form .form-input {
   padding: 8px;
 }
 
@@ -128,11 +126,11 @@ canvas {
 .clan-option.selected, .selected.job-option {
   border-color: gold;
 }
-.clan-option h3, .job-option h3 {
+.clan-option .option-title, .job-option .option-title {
   margin: 0 0 5px 0;
   text-align: center;
 }
-.clan-option p, .job-option p {
+.clan-option .option-desc, .job-option .option-desc {
   margin: 0;
   font-size: 0.9em;
 }
@@ -219,27 +217,13 @@ canvas {
   display: block;
 }
 #combat-container .combatant {
-  position: relative;
   text-align: center;
 }
-#combat-container .combatant img {
+#combat-container .combatant .combatant-img {
   width: 64px;
   height: 64px;
   margin-bottom: 10px;
   border: 2px solid #fff;
-}
-
-#combat-container .element-icon {
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  image-rendering: pixelated;
-  pointer-events: auto;
-}
-
-#monster-element-icon {
-  top: -4px;
-  right: -4px;
 }
 #combat-container .combatant .hp-bar {
   width: 70px;
@@ -348,7 +332,7 @@ canvas {
   right: 10px;
   text-align: right;
 }
-#combat-container #combat-controls button {
+#combat-container #combat-controls .control-button {
   margin: 0 5px;
 }
 #combat-container #combat-controls #turn-indicator {
@@ -389,7 +373,7 @@ canvas {
   display: none;
   text-align: center;
 }
-#attribute-container button {
+#attribute-container .attribute-button {
   margin: 0 5px;
 }
 

@@ -845,6 +845,8 @@ function update() {
 }
 
 const game = new Phaser.Game(config);
+const canvasEl = document.querySelector('canvas');
+if (canvasEl) canvasEl.classList.add('game-canvas');
 
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('registration-form');

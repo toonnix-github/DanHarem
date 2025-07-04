@@ -1,13 +1,13 @@
 @use 'variables';
 @use 'typography';
 
-body {
+.app-body {
   margin: 0;
   padding: 0;
   background-color: variables.$background-color;
 }
 
-canvas {
+.game-canvas {
   display: block;
   margin: 0 auto;
 }
@@ -75,9 +75,7 @@ canvas {
   gap: 10px;
   width: 300px;
 
-  input[type="text"],
-  input[type="email"],
-  input[type="password"] {
+  .form-input {
     padding: 8px;
   }
 }
@@ -129,12 +127,12 @@ canvas {
     border-color: variables.$accent-color;
   }
 
-  h3 {
+  .option-title {
     margin: 0 0 5px 0;
     text-align: center;
   }
 
-  p {
+  .option-desc {
     margin: 0;
     font-size: 0.9em;
   }
@@ -237,7 +235,7 @@ canvas {
   .combatant {
     text-align: center;
 
-    img {
+    .combatant-img {
       width: 64px;
       height: 64px;
       margin-bottom: 10px;
@@ -338,7 +336,7 @@ canvas {
     right: 10px;
     text-align: right;
 
-    button {
+    .control-button {
       margin: 0 5px;
     }
 
@@ -385,7 +383,7 @@ canvas {
   display: none;
   text-align: center;
 
-  button {
+  .attribute-button {
     margin: 0 5px;
   }
 }
