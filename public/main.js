@@ -61,6 +61,12 @@ let heroStats = {
   critChance: 0.1,
   critMultiplier: 1.5,
 };
+let heroEquipment = { left: null, right: null };
+const defaultWeapons = {
+  Knight: { name: 'Sword', twoHanded: false },
+  Ranger: { name: 'Bow', twoHanded: true },
+  Mage: { name: 'Staff', twoHanded: true }
+};
 let playerRewards = { exp: 0, gold: 0, items: [] };
 let cursors;
 let wasd;
@@ -105,6 +111,13 @@ function updateHeroHUD() {
     `<div>STR: ${heroStats.str} SPD: ${heroStats.spd} MAG: ${heroStats.mag}</div>`;
 }
 
+function updateEquipmentUI() {
+  const leftSlot = document.getElementById('left-hand-slot');
+  const rightSlot = document.getElementById('right-hand-slot');
+  if (leftSlot) leftSlot.textContent = heroEquipment.left ? heroEquipment.left.name : 'Empty';
+  if (rightSlot) rightSlot.textContent = heroEquipment.right ? heroEquipment.right.name : 'Empty';
+}
+
 function updateAttributeUI() {
   const container = document.getElementById('attribute-container');
   const span = document.getElementById('points-remaining');
@@ -120,6 +133,32 @@ function allocateAttribute(stat) {
     heroStats.attributePoints -= 1;
     updateHeroHUD();
     updateAttributeUI();
+  }
+}
+
+function equipWeapon(slot, weapon) {
+  if (!weapon || (slot !== 'left' && slot !== 'right')) return;
+  if (weapon.twoHanded) {
+    heroEquipment.left = weapon;
+    heroEquipment.right = weapon;
+  } else {
+    if (heroEquipment.left && heroEquipment.left.twoHanded) {
+      heroEquipment.left = null;
+      heroEquipment.right = null;
+    }
+    if (heroEquipment.right && heroEquipment.right.twoHanded) {
+      heroEquipment.left = null;
+      heroEquipment.right = null;
+    }
+    heroEquipment[slot] = weapon;
+  }
+  updateEquipmentUI();
+}
+
+function assignDefaultWeapon(job) {
+  const weapon = defaultWeapons[job];
+  if (weapon) {
+    equipWeapon('right', weapon);
   }
 }
 
@@ -548,6 +587,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const msg = jobConfirmed ? 'Job Confirmed' : 'Selected Job';
       jobMessage.textContent = `${msg}: ${selectedJob}`;
     }
+    if (jobConfirmed) assignDefaultWeapon(selectedJob);
   }
 
   const initPhase = () => {
@@ -591,6 +631,7 @@ document.addEventListener('DOMContentLoaded', () => {
       jobConfirmed = true;
       localStorage.setItem('jobConfirmed', 'true');
       if (jobMessage) jobMessage.textContent = `Job Confirmed: ${selectedJob}`;
+      assignDefaultWeapon(selectedJob);
       showPhase(PHASES.PLAY);
     });
   }
@@ -628,6 +669,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initPhase();
   updateHeroHUD();
   updateAttributeUI();
+  updateEquipmentUI();
 });
 
 // expose functions for testing
@@ -652,6 +694,10 @@ if (typeof module !== 'undefined' && module.exports) {
     updateHeroHUD,
     updateAttributeUI,
     allocateAttribute,
+    equipWeapon,
+    assignDefaultWeapon,
+    heroEquipment,
+    updateEquipmentUI,
     updateTurnIndicator,
     getTurn: () => turn,
     setTurn: t => { turn = t; },

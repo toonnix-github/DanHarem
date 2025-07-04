@@ -25,6 +25,21 @@ canvas {
   pointer-events: none;
 }
 
+#equipment-container {
+  position: absolute;
+  top: 80px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  color: variables.$text-color;
+  padding: 5px;
+  font-size: 14px;
+  z-index: 5;
+
+  .weapon-slot {
+    margin-bottom: 4px;
+  }
+}
+
 #registration-container {
   position: absolute;
   top: 0;
@@ -260,6 +275,11 @@ canvas {
     pointer-events: none;
     animation: float-up 1s forwards ease-out;
     transform: translateX(-50%);
+  }
+
+  .damage-number.critical {
+    color: yellow;
+    text-shadow: 0 0 5px #fff;
   }
 
   @keyframes defeat-fade {
