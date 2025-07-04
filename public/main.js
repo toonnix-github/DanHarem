@@ -188,15 +188,20 @@ function handleRewards() {
   const msgEl = document.getElementById('reward-message');
   const container = document.getElementById('reward-container');
   if (msgEl) msgEl.textContent = `Earned ${reward.exp} XP`;
-  if (container) {
-    container.style.display = 'block';
-    setTimeout(() => {
-      container.style.display = 'none';
-      const lvlMsg = document.getElementById('level-up-message');
-      if (lvlMsg) lvlMsg.textContent = '';
-    }, 3000);
-  }
   checkLevelUp();
+  return new Promise(resolve => {
+    if (container) {
+      container.style.display = 'block';
+      setTimeout(() => {
+        container.style.display = 'none';
+        const lvlMsg = document.getElementById('level-up-message');
+        if (lvlMsg) lvlMsg.textContent = '';
+        resolve();
+      }, 3000);
+    } else {
+      resolve();
+    }
+  });
 }
 
 function showDamage(targetId, amount) {
@@ -289,9 +294,12 @@ async function attackAction() {
   let msg = `Hero attacks! Monster HP is ${currentMonster.stats.hp}.`;
   setCombatMessage(msg);
   if (currentMonster.stats.hp <= 0) {
-    handleRewards();
-    endBattle(msg + ' Monster defeated!');
-    return msg + ' Monster defeated!';
+    const finalMsg = msg + ' Monster defeated!';
+    setCombatMessage(finalMsg);
+    handleRewards().then(() => {
+      endBattle(finalMsg);
+    });
+    return finalMsg;
   }
   await delay(1000);
   return enemyPhase(msg);
