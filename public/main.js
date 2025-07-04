@@ -107,6 +107,8 @@ function spawnMonsterAt(spawn, scene) {
       'skeletonSheet',
       0
     );
+    sprite.setOrigin(0.5, 0.5);
+    sprite.setScale(1);
   } else {
     sprite = scene.add.rectangle(
       spawn.x * tileSize + tileSize / 2,
@@ -333,14 +335,18 @@ async function defendAction() {
 
 function preload() {
   if (this.load && this.load.spritesheet) {
-    this.load.spritesheet('heroSheet', 'assets/Dungeon_Character_at.png', {
+    this.load.spritesheet('heroSheet', './assets/Dungeon_Character_at.png', {
       frameWidth: 32,
       frameHeight: 32
     });
-    this.load.spritesheet('skeletonSheet', 'assets/Enemy_Animations_Set/enemies-skeleton1_idle.png', {
+    this.load.spritesheet(
+      'skeletonSheet',
+      './assets/Enemy_Animations_Set/enemies-skeleton1_idle.png',
+      {
       frameWidth: 32,
       frameHeight: 32
-    });
+    }
+    );
   }
 }
 
@@ -357,7 +363,14 @@ function create() {
 
   // spawn hero on a walkable tile to ensure movement works
   if (this.add.sprite) {
-    hero = this.add.sprite(tileSize + tileSize / 2, tileSize + tileSize / 2, 'heroSheet', 0);
+    hero = this.add.sprite(
+      tileSize + tileSize / 2,
+      tileSize + tileSize / 2,
+      'heroSheet',
+      0
+    );
+    hero.setOrigin(0.5, 0.5);
+    hero.setScale(1);
   } else {
     hero = this.add.rectangle(tileSize + tileSize / 2, tileSize + tileSize / 2, tileSize, tileSize, 0xff0000);
   }
