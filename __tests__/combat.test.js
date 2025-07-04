@@ -11,11 +11,11 @@ beforeEach(() => {
       <div class="battle-panel">
         <div class="combatant">
           <img id="hero-img" />
-          <div id="hero-stats"></div>
+          <div id="hero-stats" class="hp-bar"><div id="hero-hp-fill" class="hp-fill"></div></div>
         </div>
         <div class="combatant">
           <img id="monster-img" />
-          <div id="monster-stats"></div>
+          <div id="monster-stats" class="hp-bar"><div id="monster-hp-fill" class="hp-fill"></div></div>
         </div>
       </div>
       <div id="combat-controls">
@@ -40,13 +40,13 @@ test('enterBattle shows combat container with stats', () => {
   enterBattle(monster);
   const container = document.getElementById('combat-container');
   expect(container.style.display).toBe('block');
-  expect(document.getElementById('hero-stats').textContent).toBe(`Hero HP: ${heroStats.hp}`);
-  expect(document.getElementById('monster-stats').textContent).toBe('Monster HP: 30');
+  expect(document.getElementById('hero-hp-fill').style.width).toBe('100%');
+  expect(document.getElementById('monster-hp-fill').style.width).toBe('100%');
   expect(document.getElementById('turn-indicator').textContent).toBe('Player Turn');
 });
 
 test('attackAction damages monster and hero takes damage', async () => {
-  const monster = { stats: { hp: 30, atk: 5 } };
+  const monster = { stats: { hp: 30, maxHp: 30, atk: 5 } };
   enterBattle(monster);
   const promise = attackAction();
   expect(document.getElementById('turn-indicator').textContent).toBe('Player Turn');
@@ -54,18 +54,21 @@ test('attackAction damages monster and hero takes damage', async () => {
   await promise;
   expect(monster.stats.hp).toBe(20);
   expect(heroStats.hp).toBe(95);
+  expect(document.getElementById('hero-hp-fill').style.width).toBe('95%');
+  expect(document.getElementById('monster-hp-fill').style.width).toBe('66.66666666666666%');
   expect(document.getElementById('combat-message').textContent).toContain('Monster attacks');
   expect(document.getElementById('turn-indicator').textContent).toBe('Player Turn');
 });
 
 test('defendAction reduces incoming damage', async () => {
-  const monster = { stats: { hp: 30, atk: 5 } };
+  const monster = { stats: { hp: 30, maxHp: 30, atk: 5 } };
   enterBattle(monster);
   const promise = defendAction();
   expect(document.getElementById('turn-indicator').textContent).toBe('Player Turn');
   await flushTimers();
   await promise;
   expect(heroStats.hp).toBe(98);
+  expect(document.getElementById('hero-hp-fill').style.width).toBe('98%');
   expect(document.getElementById('combat-message').textContent).toContain('Monster attacks');
   expect(document.getElementById('turn-indicator').textContent).toBe('Player Turn');
 });
