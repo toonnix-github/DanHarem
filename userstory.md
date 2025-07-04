@@ -35,3 +35,11 @@ weapon falls below 30% it is considered in **bad shape** and shown in red.
 - `degradeWeapon` reduces durability when an attack occurs.
 - `weaponDamage` factors durability into the damage calculation.
 - `updateEquipmentUI` updates slot text and status classes in real time.
+
+### User Story 20a Notes
+Implemented Fireball casting for the Mage. A new **Fireball** button appears in
+combat controls when it's the player's turn. The button becomes disabled if the
+hero has less than 10 MP. Casting the spell reduces MP immediately and damages
+the target using `MAG` plus a small base value. The existing attack action
+remains for weapon strikes. Added unit tests covering mana consumption, button
+state, and insufficient mana handling.
