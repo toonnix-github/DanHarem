@@ -62,6 +62,8 @@ let heroStats = {
 };
 let heroEquipment = { left: null, right: null };
 const DURABILITY_LOSS_PER_USE = 5;
+const FIREBALL_COST = 10;
+const FIREBALL_BASE_DAMAGE = 5;
 const defaultWeapons = {
   Knight: { name: 'Sword', type: 'sword', twoHanded: false, baseDamage: 5 },
   Ranger: { name: 'Bow', type: 'bow', twoHanded: true, baseDamage: 4 },
@@ -95,9 +97,14 @@ function updateTurnIndicator() {
   showTurnBanner(turn === 'player' ? 'Hero Turn' : 'Enemy Turn');
   const attackBtn = document.getElementById('attack-btn');
   const defendBtn = document.getElementById('defend-btn');
+  const fireballBtn = document.getElementById('fireball-btn');
   const display = turn === 'player' ? 'inline-block' : 'none';
   if (attackBtn) attackBtn.style.display = display;
   if (defendBtn) defendBtn.style.display = display;
+  if (fireballBtn) {
+    fireballBtn.style.display = display;
+    fireballBtn.disabled = heroStats.mp < FIREBALL_COST;
+  }
 }
 
 function updateHeroHUD() {
@@ -186,6 +193,10 @@ function weaponDamage() {
 
 function heroAttackPower() {
   return heroStats.str + weaponDamage();
+}
+
+function fireballDamage() {
+  return FIREBALL_BASE_DAMAGE + heroStats.mag;
 }
 
 function assignDefaultWeapon(job) {
@@ -437,8 +448,10 @@ async function attackAction() {
   if (!currentMonster || turn !== 'player') return '';
   const attackBtn = document.getElementById('attack-btn');
   const defendBtn = document.getElementById('defend-btn');
+  const fireballBtn = document.getElementById('fireball-btn');
   if (attackBtn) attackBtn.style.display = 'none';
   if (defendBtn) defendBtn.style.display = 'none';
+  if (fireballBtn) fireballBtn.style.display = 'none';
   let damage = heroAttackPower();
   const crit = Math.random() < heroStats.critChance;
   if (crit) damage = Math.floor(damage * heroStats.critMultiplier);
@@ -451,6 +464,36 @@ async function attackAction() {
   updateEquipmentUI();
   updateCombatDisplay();
   let msg = crit ? `Hero critically hits! Monster HP is ${currentMonster.stats.hp}.` : `Hero attacks! Monster HP is ${currentMonster.stats.hp}.`;
+  setCombatMessage(msg);
+  if (currentMonster.stats.hp <= 0) {
+    const finalMsg = msg + ' Monster defeated!';
+    setCombatMessage(finalMsg);
+    const mImg = document.getElementById('monster-img');
+    if (mImg) mImg.classList.add('defeated');
+    handleRewards().then(() => {
+      endBattle(finalMsg);
+      if (mImg) mImg.classList.remove('defeated');
+    });
+    return finalMsg;
+  }
+  await delay(1000);
+  return enemyPhase(msg);
+}
+
+async function castFireballAction() {
+  if (!currentMonster || turn !== 'player' || heroStats.mp < FIREBALL_COST) return '';
+  const attackBtn = document.getElementById('attack-btn');
+  const defendBtn = document.getElementById('defend-btn');
+  const fireballBtn = document.getElementById('fireball-btn');
+  if (attackBtn) attackBtn.style.display = 'none';
+  if (defendBtn) defendBtn.style.display = 'none';
+  if (fireballBtn) fireballBtn.style.display = 'none';
+  heroStats.mp -= FIREBALL_COST;
+  const damage = fireballDamage();
+  animateAttack('hero-img','monster-img', damage, false);
+  currentMonster.stats.hp -= damage;
+  updateCombatDisplay();
+  let msg = `Hero casts Fireball! Monster HP is ${currentMonster.stats.hp}.`;
   setCombatMessage(msg);
   if (currentMonster.stats.hp <= 0) {
     const finalMsg = msg + ' Monster defeated!';
@@ -592,6 +635,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const continueBtn = document.getElementById('job-continue');
   const attackBtn = document.getElementById('attack-btn');
   const defendBtn = document.getElementById('defend-btn');
+  const fireballBtn = document.getElementById('fireball-btn');
   const strBtn = document.getElementById('str-plus');
   const spdBtn = document.getElementById('spd-plus');
   const magBtn = document.getElementById('mag-plus');
@@ -675,6 +719,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (attackBtn) attackBtn.addEventListener('click', attackAction);
   if (defendBtn) defendBtn.addEventListener('click', defendAction);
+  if (fireballBtn) fireballBtn.addEventListener('click', castFireballAction);
   if (strBtn) strBtn.addEventListener('click', () => allocateAttribute('str'));
   if (spdBtn) spdBtn.addEventListener('click', () => allocateAttribute('spd'));
   if (magBtn) magBtn.addEventListener('click', () => allocateAttribute('mag'));
@@ -725,6 +770,7 @@ if (typeof module !== 'undefined' && module.exports) {
     heroStats,
     enterBattle,
     attackAction,
+    castFireballAction,
     defendAction,
     endBattle,
     handleRewards,
@@ -737,6 +783,7 @@ if (typeof module !== 'undefined' && module.exports) {
     updateEquipmentUI,
     weaponDamage,
     heroAttackPower,
+    fireballDamage,
     updateTurnIndicator,
     getTurn: () => turn,
     setTurn: t => { turn = t; },
