@@ -16,17 +16,28 @@ canvas {
 
 .card {
   position: relative;
-  background: rgba(0, 0, 0, 0.6);
-  border: 2px solid gold;
-  border-radius: 4px;
+  box-sizing: border-box;
+  background: #fdf6d3;
+  border: 1px solid #2b1605;
+  border-radius: 8px;
   padding: 10px;
   margin: 10px;
-  box-shadow: 0 0 5px gold;
+  box-shadow: 0 0 6px #2b1605;
+  font-family: "Times New Roman", serif;
+  color: #000;
 }
 .card h3 {
   margin: 0 0 6px 0;
-  font-size: 1em;
+  font-size: 1.1em;
   text-align: center;
+}
+.card .card-image {
+  width: 100%;
+  height: 140px;
+  background: #555;
+  border: 1px solid #2b1605;
+  border-radius: 4px;
+  margin-bottom: 6px;
 }
 
 #hero-hud {

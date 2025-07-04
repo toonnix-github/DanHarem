@@ -18,3 +18,4 @@
 - User Story 22f: Weapon Equip Logic for One-Handed and Two-Handed Weapons.
 - User Story 22g: Add Weapon Attributes and Integrate Them into Combat Calculations.
 - User Story 26: Redesign UI Layout Using Card Style for Game Elements.
+- Completed: User Story 26 card layout refined with MTG-style placeholders.

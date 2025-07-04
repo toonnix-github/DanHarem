@@ -5,7 +5,7 @@ beforeEach(() => {
   jest.resetModules();
   global.Phaser = { Game: jest.fn() };
   ({ updateHeroHUD, heroStats } = require('../public/main.js'));
-  document.body.innerHTML = '<div id="hero-hud" class="card"><h3>Hero Stats</h3><div id="hero-hud-content"></div></div>';
+  document.body.innerHTML = '<div id="hero-hud" class="card"><h3>Hero Stats</h3><div class="card-image"></div><div id="hero-hud-content"></div></div>';
 });
 
 test('updateHeroHUD displays hero stats', () => {
