@@ -115,4 +115,15 @@ describe('main.js DOM interactions', () => {
     document.getElementById('job-continue').click();
     expect(document.getElementById('selected-job-message').textContent).toBe('Job Confirmed: Ranger');
   });
+
+  test('default weapon equipped when job confirmed', () => {
+    localStorage.setItem('registered', 'true');
+    loadScript();
+    document.querySelector('[data-clan="ARES"]').click();
+    document.querySelector('[data-job="Knight"]').click();
+    document.getElementById('job-continue').click();
+    const { heroEquipment } = require('../public/main.js');
+    expect(heroEquipment.right).toEqual({ name: 'Sword', twoHanded: false });
+    expect(heroEquipment.left).toBeNull();
+  });
 });

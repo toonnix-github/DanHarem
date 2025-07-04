@@ -62,6 +62,11 @@ let heroStats = {
   critMultiplier: 1.5,
 };
 let heroEquipment = { left: null, right: null };
+const defaultWeapons = {
+  Knight: { name: 'Sword', twoHanded: false },
+  Ranger: { name: 'Bow', twoHanded: true },
+  Mage: { name: 'Staff', twoHanded: true }
+};
 let playerRewards = { exp: 0, gold: 0, items: [] };
 let cursors;
 let wasd;
@@ -148,6 +153,13 @@ function equipWeapon(slot, weapon) {
     heroEquipment[slot] = weapon;
   }
   updateEquipmentUI();
+}
+
+function assignDefaultWeapon(job) {
+  const weapon = defaultWeapons[job];
+  if (weapon) {
+    equipWeapon('right', weapon);
+  }
 }
 
 function updateHPBars() {
@@ -575,6 +587,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const msg = jobConfirmed ? 'Job Confirmed' : 'Selected Job';
       jobMessage.textContent = `${msg}: ${selectedJob}`;
     }
+    if (jobConfirmed) assignDefaultWeapon(selectedJob);
   }
 
   const initPhase = () => {
@@ -618,6 +631,7 @@ document.addEventListener('DOMContentLoaded', () => {
       jobConfirmed = true;
       localStorage.setItem('jobConfirmed', 'true');
       if (jobMessage) jobMessage.textContent = `Job Confirmed: ${selectedJob}`;
+      assignDefaultWeapon(selectedJob);
       showPhase(PHASES.PLAY);
     });
   }
@@ -681,6 +695,7 @@ if (typeof module !== 'undefined' && module.exports) {
     updateAttributeUI,
     allocateAttribute,
     equipWeapon,
+    assignDefaultWeapon,
     heroEquipment,
     updateEquipmentUI,
     updateTurnIndicator,
