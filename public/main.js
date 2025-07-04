@@ -45,7 +45,19 @@ const config = {
 };
 
 let hero;
-let heroStats = { hp: 100, mp: 30, atk: 10, level: 1, exp: 0, defending: false };
+let heroStats = {
+  hp: 100,
+  mp: 30,
+  maxHp: 100,
+  maxMp: 30,
+  atk: 10,
+  str: 10,
+  spd: 5,
+  mag: 3,
+  level: 1,
+  exp: 0,
+  defending: false
+};
 let playerRewards = { exp: 0, gold: 0, items: [] };
 let cursors;
 let wasd;
@@ -79,6 +91,29 @@ function updateTurnIndicator() {
   if (defendBtn) defendBtn.style.display = display;
 }
 
+function updateHeroHUD() {
+  const hud = document.getElementById('hero-hud');
+  if (!hud) return;
+  const name = localStorage.getItem('username') || 'Hero';
+  hud.innerHTML =
+    `<div>${name} - Lv ${heroStats.level}</div>` +
+    `<div>HP: ${heroStats.hp}/${heroStats.maxHp}</div>` +
+    `<div>MP: ${heroStats.mp}/${heroStats.maxMp}</div>` +
+    `<div>STR: ${heroStats.str} SPD: ${heroStats.spd} MAG: ${heroStats.mag}</div>`;
+}
+
+function updateHPBars() {
+  const heroFill = document.getElementById('hero-hp-fill');
+  if (heroFill) {
+    heroFill.style.width = `${(heroStats.hp / heroStats.maxHp) * 100}%`;
+  }
+  const monsterFill = document.getElementById('monster-hp-fill');
+  if (monsterFill && currentMonster) {
+    const max = currentMonster.stats.maxHp || currentMonster.stats.hp;
+    monsterFill.style.width = `${(currentMonster.stats.hp / max) * 100}%`;
+  }
+}
+
 function endBattle(result) {
   const combat = document.getElementById('combat-container');
   if (combat) combat.style.display = 'none';
@@ -93,6 +128,8 @@ function endBattle(result) {
   currentMonster = null;
   turn = 'player';
   updateTurnIndicator();
+  updateHeroHUD();
+  updateHPBars();
   if (result) setCombatMessage(result);
   const banner = document.getElementById('turn-banner');
   if (banner) banner.classList.remove('visible');
@@ -118,7 +155,7 @@ function spawnMonsterAt(spawn, scene) {
       0x00ff00
     );
   }
-  return { sprite, tileX: spawn.x, tileY: spawn.y, stats: { hp: 30, atk: 5 }, spawn };
+  return { sprite, tileX: spawn.x, tileY: spawn.y, stats: { hp: 30, maxHp: 30, atk: 5 }, spawn };
 }
 
 function scheduleRespawn(monster) {
@@ -153,8 +190,9 @@ function enterBattle(monster) {
   currentMonster = monster;
   heroStats.defending = false;
   turn = 'player';
-  if (heroEl) heroEl.textContent = `Hero HP: ${heroStats.hp}`;
-  if (monsterEl) monsterEl.textContent = `Monster HP: ${monster.stats.hp}`;
+  if (heroEl) heroEl.className = 'hp-bar';
+  if (monsterEl) monsterEl.className = 'hp-bar';
+  updateHPBars();
   combat.style.display = 'block';
   const msgEl = document.getElementById('combat-message');
   if (msgEl) msgEl.textContent = 'Battle started!';
@@ -162,10 +200,8 @@ function enterBattle(monster) {
 }
 
 function updateCombatDisplay() {
-  const heroEl = document.getElementById('hero-stats');
-  const monsterEl = document.getElementById('monster-stats');
-  if (heroEl) heroEl.textContent = `Hero HP: ${heroStats.hp}`;
-  if (monsterEl && currentMonster) monsterEl.textContent = `Monster HP: ${currentMonster.stats.hp}`;
+  updateHPBars();
+  updateHeroHUD();
 }
 
 function setCombatMessage(msg) {
@@ -182,6 +218,8 @@ function checkLevelUp() {
   while (heroStats.exp >= xpForNextLevel(heroStats.level)) {
     heroStats.exp -= xpForNextLevel(heroStats.level);
     heroStats.level += 1;
+    heroStats.maxHp += 10;
+    heroStats.maxMp += 5;
     heroStats.hp += 10;
     heroStats.mp += 5;
     heroStats.atk += 2;
@@ -190,6 +228,7 @@ function checkLevelUp() {
   if (leveled) {
     const msgEl = document.getElementById('level-up-message');
     if (msgEl) msgEl.textContent = `Level Up! Level ${heroStats.level}`;
+    updateHeroHUD();
   }
 }
 
@@ -201,6 +240,7 @@ function handleRewards() {
   const container = document.getElementById('reward-container');
   if (msgEl) msgEl.textContent = `Earned ${reward.exp} XP`;
   checkLevelUp();
+  updateHeroHUD();
   return new Promise(resolve => {
     if (container) {
       container.style.display = 'block';
@@ -542,12 +582,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
       errorEl.textContent = '';
       localStorage.setItem('registered', 'true');
+      localStorage.setItem('username', username);
       console.log('Registered:', { username, email });
       showPhase(PHASES.CLAN);
     });
   }
 
   initPhase();
+  updateHeroHUD();
 });
 
 // expose functions for testing
@@ -569,6 +611,7 @@ if (typeof module !== 'undefined' && module.exports) {
     defendAction,
     endBattle,
     handleRewards,
+    updateHeroHUD,
     updateTurnIndicator,
     getTurn: () => turn,
     setTurn: t => { turn = t; },

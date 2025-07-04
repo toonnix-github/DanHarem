@@ -14,6 +14,19 @@ canvas {
   margin: 0 auto;
 }
 
+#hero-hud {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  padding: 5px;
+  font-size: 14px;
+  line-height: 1.2;
+  z-index: 5;
+  pointer-events: none;
+}
+
 #registration-container {
   position: absolute;
   top: 0;
@@ -174,9 +187,18 @@ canvas {
   height: 64px;
   margin-bottom: 10px;
   border: 2px solid #fff;
-  image-rendering: pixelated;
-  object-fit: none;
-  object-position: 0 0;
+}
+#combat-container .combatant .hp-bar {
+  width: 70px;
+  height: 8px;
+  background: #333;
+  border: 1px solid #fff;
+  margin: 4px auto 0;
+}
+#combat-container .combatant .hp-bar .hp-fill {
+  height: 100%;
+  background: #e33;
+  width: 100%;
 }
 @keyframes shake {
   0%, 100% {
