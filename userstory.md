@@ -14,3 +14,4 @@
 - User Story 9: Reward System After Combat.
 - User Story 10: Monster Respawn System.
 - User Story 11: Hero Leveling and Stats Progression.
+- User Story 16: Hero Attribute Allocation.

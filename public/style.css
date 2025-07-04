@@ -315,4 +315,20 @@ canvas {
   font-weight: bold;
 }
 
+#attribute-container {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 10px;
+  border: 1px solid #fff;
+  display: none;
+  text-align: center;
+}
+#attribute-container button {
+  margin: 0 5px;
+}
+
 /*# sourceMappingURL=style.css.map */
