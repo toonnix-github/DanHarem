@@ -62,6 +62,14 @@ let heroStats = {
 };
 let heroEquipment = { left: null, right: null };
 const DEFAULT_RESISTANCES = { Physical: 0, Fire: 0, Water: 0 };
+const ELEMENT_ICONS = {
+  fire:
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAP0lEQVR4AZ3B0QmAMBAFwb20efW9OlcjBgTNjzMsBvlQnAxyq6Z4GAaZmotBHgZLgOZlVFNMDYQ9gwbZMcgfB/zMFZLXHOqhAAAAAElFTkSuQmCC',
+  water:
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAPklEQVR4AZXBwQ2AMAwEwd0mXaSbPBIJP4jgwQwPnXCQ0QmjlJtsnXAqZZFO+FIqWyecSllkdMIo5VUn/HUBN4sUVnEQkF8AAAAASUVORK5CYII=',
+  physical:
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAALklEQVR4AaXBsQ0AMAjAsJSr+H/KV3RFSBVDbTq1GIJFsDhq8ZCZh04thmAR/LpHUgq4BM/ldgAAAABJRU5ErkJggg=='
+};
 const DURABILITY_LOSS_PER_USE = 5;
 const FIREBALL_COST = 10;
 const FIREBALL_BASE_DAMAGE = 5;
@@ -152,12 +160,18 @@ function updateHeroHUD() {
 
 function updateMonsterInfo() {
   const info = document.getElementById('monster-info');
+  const icon = document.getElementById('monster-element-icon');
   if (!info || !currentMonster) return;
   const res = currentMonster.resistances || {};
   const entries = Object.keys(res)
     .map(k => `${k} ${Math.round(res[k] * 100)}%`)
     .join(' ');
   info.textContent = `Element: ${currentMonster.element || 'Unknown'} | ${entries}`;
+  if (icon) {
+    const el = (currentMonster.element || 'Physical').toLowerCase();
+    icon.src = ELEMENT_ICONS[el] || '';
+    icon.title = currentMonster.element || 'Unknown';
+  }
 }
 
 function updateEquipmentUI() {
@@ -326,6 +340,12 @@ function scheduleRespawn(monster) {
 function modifyMonsterResistance(monster, element, delta) {
   if (!monster.resistances) monster.resistances = { ...DEFAULT_RESISTANCES };
   monster.resistances[element] = (monster.resistances[element] || 0) + delta;
+  updateMonsterInfo();
+}
+
+function setMonsterElement(monster, element) {
+  if (!monster) return;
+  monster.element = element;
   updateMonsterInfo();
 }
 
@@ -996,6 +1016,7 @@ if (typeof module !== 'undefined' && module.exports) {
     animateFireball,
     updateMonsterInfo,
     modifyMonsterResistance,
+    setMonsterElement,
     doubleShotAction,
     shieldBashAction,
     skillCooldowns,
@@ -1009,7 +1030,8 @@ if (typeof module !== 'undefined' && module.exports) {
     playerRewards,
     checkRespawns,
     monsterSpawns,
-    RESPAWN_DELAY
+    RESPAWN_DELAY,
+    ELEMENT_ICONS
   };
 }
 

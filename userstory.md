@@ -61,3 +61,11 @@ reduced according to these values via `applyResistance`. A helper
 battle and updates the display immediately. Unit tests verify that monsters are
 spawned with these properties, the UI reflects them, damage calculations respect
 resistances and changes apply correctly.
+
+### User Story 21b Notes
+Each monster now displays a small icon representing its elemental attribute. Icons
+are generated as Base64 PNG data URLs embedded directly in the code and shown
+next to the monster sprite in combat. `updateMonsterInfo` updates the icon source
+and tooltip text so it changes whenever a monster's element is modified through
+the new `setMonsterElement` helper. Tests ensure the icon image and title update
+correctly.
