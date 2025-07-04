@@ -75,6 +75,8 @@ test('monster removed after defeat', async () => {
   setMonsters([monster]);
   enterBattle(monster);
   await attackAction();
+  jest.advanceTimersByTime(3000);
+  await flushTimers();
   expect(getMonsters().length).toBe(0);
   expect(monster.sprite.destroy).toHaveBeenCalled();
 });
