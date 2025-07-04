@@ -155,17 +155,16 @@ canvas {
 }
 #combat-container #turn-banner {
   position: absolute;
-  top: 40%;
+  top: 10px;
   left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 32px;
+  transform: translateX(-50%);
+  font-size: 24px;
   font-weight: bold;
-  opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease-in-out;
+  display: none;
 }
 #combat-container #turn-banner.visible {
-  opacity: 1;
+  display: block;
 }
 #combat-container .combatant {
   text-align: center;
@@ -256,8 +255,10 @@ canvas {
   margin-top: 10px;
 }
 #combat-container #combat-message {
-  margin-top: 10px;
-  text-align: center;
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  text-align: left;
 }
 
 #reward-container {
