@@ -50,7 +50,6 @@ let heroStats = {
   mp: 30,
   maxHp: 100,
   maxMp: 30,
-  atk: 10,
   str: 10,
   spd: 5,
   mag: 3,
@@ -63,9 +62,9 @@ let heroStats = {
 };
 let heroEquipment = { left: null, right: null };
 const defaultWeapons = {
-  Knight: { name: 'Sword', twoHanded: false },
-  Ranger: { name: 'Bow', twoHanded: true },
-  Mage: { name: 'Staff', twoHanded: true }
+  Knight: { name: 'Sword', type: 'sword', twoHanded: false, baseDamage: 5 },
+  Ranger: { name: 'Bow', type: 'bow', twoHanded: true, baseDamage: 4 },
+  Mage: { name: 'Staff', type: 'staff', twoHanded: true, baseDamage: 3 }
 };
 let playerRewards = { exp: 0, gold: 0, items: [] };
 let cursors;
@@ -114,8 +113,16 @@ function updateHeroHUD() {
 function updateEquipmentUI() {
   const leftSlot = document.getElementById('left-hand-slot');
   const rightSlot = document.getElementById('right-hand-slot');
-  if (leftSlot) leftSlot.textContent = heroEquipment.left ? heroEquipment.left.name : 'Empty';
-  if (rightSlot) rightSlot.textContent = heroEquipment.right ? heroEquipment.right.name : 'Empty';
+  if (leftSlot) {
+    leftSlot.textContent = heroEquipment.left
+      ? `${heroEquipment.left.name} (${heroEquipment.left.baseDamage})`
+      : 'Empty';
+  }
+  if (rightSlot) {
+    rightSlot.textContent = heroEquipment.right
+      ? `${heroEquipment.right.name} (${heroEquipment.right.baseDamage})`
+      : 'Empty';
+  }
 }
 
 function updateAttributeUI() {
@@ -153,6 +160,19 @@ function equipWeapon(slot, weapon) {
     heroEquipment[slot] = weapon;
   }
   updateEquipmentUI();
+}
+
+function weaponDamage() {
+  let dmg = 0;
+  if (heroEquipment.left) dmg += heroEquipment.left.baseDamage || 0;
+  if (heroEquipment.right && heroEquipment.right !== heroEquipment.left) {
+    dmg += heroEquipment.right.baseDamage || 0;
+  }
+  return dmg;
+}
+
+function heroAttackPower() {
+  return heroStats.str + weaponDamage();
 }
 
 function assignDefaultWeapon(job) {
@@ -282,7 +302,6 @@ function checkLevelUp() {
     heroStats.maxMp += 5;
     heroStats.hp += 10;
     heroStats.mp += 5;
-    heroStats.atk += 2;
     heroStats.attributePoints += 3;
     leveled = true;
   }
@@ -407,7 +426,7 @@ async function attackAction() {
   const defendBtn = document.getElementById('defend-btn');
   if (attackBtn) attackBtn.style.display = 'none';
   if (defendBtn) defendBtn.style.display = 'none';
-  let damage = heroStats.atk;
+  let damage = heroAttackPower();
   const crit = Math.random() < heroStats.critChance;
   if (crit) damage = Math.floor(damage * heroStats.critMultiplier);
   animateAttack('hero-img','monster-img', damage, crit);
@@ -698,6 +717,8 @@ if (typeof module !== 'undefined' && module.exports) {
     assignDefaultWeapon,
     heroEquipment,
     updateEquipmentUI,
+    weaponDamage,
+    heroAttackPower,
     updateTurnIndicator,
     getTurn: () => turn,
     setTurn: t => { turn = t; },

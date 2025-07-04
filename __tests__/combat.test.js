@@ -1,11 +1,11 @@
 /** @jest-environment jsdom */
-let enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters, playerRewards;
+let enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters, playerRewards, equipWeapon, heroAttackPower;
 
 beforeEach(() => {
   jest.resetModules();
   jest.useFakeTimers();
   global.Phaser = { Game: jest.fn() };
-  ({ enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters, playerRewards } = require('../public/main.js'));
+  ({ enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters, playerRewards, equipWeapon, heroAttackPower } = require('../public/main.js'));
   document.body.innerHTML = `
     <div id="combat-container" style="display:none;">
       <div class="battle-panel">
@@ -60,6 +60,17 @@ test('attackAction damages monster and hero takes damage', async () => {
   expect(document.getElementById('turn-indicator').textContent).toBe('Player Turn');
 });
 
+test('weapon base damage increases attack', async () => {
+  equipWeapon('right', { name: 'Sword', twoHanded: false, baseDamage: 5, type: 'sword' });
+  const monster = { stats: { hp: 40, maxHp: 40, atk: 0 } };
+  enterBattle(monster);
+  const promise = attackAction();
+  await flushTimers();
+  await promise;
+  const expected = 40 - heroAttackPower();
+  expect(monster.stats.hp).toBe(expected);
+});
+
  test('critical hit deals bonus damage', async () => {
    const monster = { stats: { hp: 30, maxHp: 30, atk: 0 } };
    heroStats.critChance = 1;
@@ -67,9 +78,10 @@ test('attackAction damages monster and hero takes damage', async () => {
    enterBattle(monster);
    const promise = attackAction();
    expect(document.querySelector(".damage-number.critical")).not.toBeNull();
-   await flushTimers();
-   await promise;
-   expect(monster.stats.hp).toBe(30 - heroStats.atk * heroStats.critMultiplier);
+  await flushTimers();
+  await promise;
+  const expected = 30 - heroAttackPower() * heroStats.critMultiplier;
+  expect(monster.stats.hp).toBe(expected);
  });
 
 test('defendAction reduces incoming damage', async () => {

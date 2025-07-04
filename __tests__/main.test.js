@@ -123,7 +123,7 @@ describe('main.js DOM interactions', () => {
     document.querySelector('[data-job="Knight"]').click();
     document.getElementById('job-continue').click();
     const { heroEquipment } = require('../public/main.js');
-    expect(heroEquipment.right).toEqual({ name: 'Sword', twoHanded: false });
+    expect(heroEquipment.right).toEqual({ name: 'Sword', type: 'sword', twoHanded: false, baseDamage: 5 });
     expect(heroEquipment.left).toBeNull();
   });
 });
