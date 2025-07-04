@@ -57,7 +57,9 @@ let heroStats = {
   level: 1,
   exp: 0,
   defending: false,
-  attributePoints: 0
+  attributePoints: 0,
+  critChance: 0.1,
+  critMultiplier: 1.5,
 };
 let playerRewards = { exp: 0, gold: 0, items: [] };
 let cursors;
@@ -174,7 +176,7 @@ function spawnMonsterAt(spawn, scene) {
       0x00ff00
     );
   }
-  return { sprite, tileX: spawn.x, tileY: spawn.y, stats: { hp: 30, maxHp: 30, atk: 5 }, spawn };
+  return { sprite, tileX: spawn.x, tileY: spawn.y, stats: { hp: 30, maxHp: 30, atk: 5, critChance: 0, critMultiplier: 1.5 }, spawn };
 }
 
 function scheduleRespawn(monster) {
@@ -278,14 +280,16 @@ function handleRewards() {
   });
 }
 
-function showDamage(targetId, amount) {
+function showDamage(targetId, amount, isCritical = false) {
   const target = document.getElementById(targetId);
   const container = document.getElementById('combat-container');
   if (!target || !container) return;
   const rect = target.getBoundingClientRect();
   const cRect = container.getBoundingClientRect();
   const dmg = document.createElement('div');
-  dmg.className = 'damage-number';
+  dmg.className = "damage-number";
+  
+  if (isCritical) dmg.classList.add('critical');
   dmg.textContent = `-${amount}`;
   dmg.style.left = `${rect.left - cRect.left + rect.width / 2}px`;
   dmg.style.top = `${rect.top - cRect.top - 10}px`;
@@ -293,7 +297,7 @@ function showDamage(targetId, amount) {
   setTimeout(() => dmg.remove(), 800);
 }
 
-function animateAttack(attackerId, targetId, damage) {
+function animateAttack(attackerId, targetId, damage, isCritical = false) {
   const attacker = document.getElementById(attackerId);
   const target = document.getElementById(targetId);
   if (attacker) {
@@ -301,7 +305,7 @@ function animateAttack(attackerId, targetId, damage) {
     attacker.classList.add('attacking', cls);
   }
   if (target) target.classList.add('damaged');
-  if (damage != null) showDamage(targetId, damage);
+  if (damage != null) showDamage(targetId, damage, isCritical);
   setTimeout(() => {
     if (attacker) {
       attacker.classList.remove('attacking', 'lunge-left', 'lunge-right');
@@ -313,14 +317,16 @@ function animateAttack(attackerId, targetId, damage) {
 function monsterTurn() {
   if (!currentMonster) return '';
   let damage = currentMonster.stats.atk;
+  const crit = Math.random() < (currentMonster.stats.critChance || 0);
+  if (crit) damage = Math.floor(damage * (currentMonster.stats.critMultiplier || 1.5));
   if (heroStats.defending) {
     damage = Math.floor(damage / 2);
     heroStats.defending = false;
   }
-  animateAttack('monster-img', 'hero-img', damage);
+  animateAttack('monster-img', 'hero-img', damage, crit);
   heroStats.hp -= damage;
   updateCombatDisplay();
-  return `Monster attacks for ${damage}. Hero HP is ${heroStats.hp}.`;
+  return crit ? `Monster critically hits for ${damage}. Hero HP is ${heroStats.hp}.` : `Monster attacks for ${damage}. Hero HP is ${heroStats.hp}.`;
 }
 
 function delay(ms) {
@@ -362,10 +368,13 @@ async function attackAction() {
   const defendBtn = document.getElementById('defend-btn');
   if (attackBtn) attackBtn.style.display = 'none';
   if (defendBtn) defendBtn.style.display = 'none';
-  animateAttack('hero-img', 'monster-img', heroStats.atk);
-  currentMonster.stats.hp -= heroStats.atk;
+  let damage = heroStats.atk;
+  const crit = Math.random() < heroStats.critChance;
+  if (crit) damage = Math.floor(damage * heroStats.critMultiplier);
+  animateAttack('hero-img','monster-img', damage, crit);
+  currentMonster.stats.hp -= damage;
   updateCombatDisplay();
-  let msg = `Hero attacks! Monster HP is ${currentMonster.stats.hp}.`;
+  let msg = crit ? `Hero critically hits! Monster HP is ${currentMonster.stats.hp}.` : `Hero attacks! Monster HP is ${currentMonster.stats.hp}.`;
   setCombatMessage(msg);
   if (currentMonster.stats.hp <= 0) {
     const finalMsg = msg + ' Monster defeated!';
