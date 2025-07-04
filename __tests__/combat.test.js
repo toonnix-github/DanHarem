@@ -1,11 +1,11 @@
 /** @jest-environment jsdom */
-let enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters, playerRewards, equipWeapon;
+let enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters, playerRewards, equipWeapon, heroAttackPower;
 
 beforeEach(() => {
   jest.resetModules();
   jest.useFakeTimers();
   global.Phaser = { Game: jest.fn() };
-  ({ enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters, playerRewards, equipWeapon } = require('../public/main.js'));
+  ({ enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters, playerRewards, equipWeapon, heroAttackPower } = require('../public/main.js'));
   document.body.innerHTML = `
     <div id="combat-container" style="display:none;">
       <div class="battle-panel">
@@ -52,10 +52,10 @@ test('attackAction damages monster and hero takes damage', async () => {
   expect(document.getElementById('turn-indicator').textContent).toBe('Player Turn');
   await flushTimers();
   await promise;
-  expect(monster.stats.hp).toBe(10);
+  expect(monster.stats.hp).toBe(20);
   expect(heroStats.hp).toBe(95);
   expect(document.getElementById('hero-hp-fill').style.width).toBe('95%');
-  expect(document.getElementById('monster-hp-fill').style.width).toBe('33.33333333333333%');
+  expect(document.getElementById('monster-hp-fill').style.width).toBe('66.66666666666666%');
   expect(document.getElementById('combat-message').textContent).toContain('Monster attacks');
   expect(document.getElementById('turn-indicator').textContent).toBe('Player Turn');
 });
@@ -67,7 +67,7 @@ test('weapon base damage increases attack', async () => {
   const promise = attackAction();
   await flushTimers();
   await promise;
-  const expected = 40 - (heroStats.atk + heroStats.str + 5);
+  const expected = 40 - heroAttackPower();
   expect(monster.stats.hp).toBe(expected);
 });
 
@@ -80,7 +80,7 @@ test('weapon base damage increases attack', async () => {
    expect(document.querySelector(".damage-number.critical")).not.toBeNull();
   await flushTimers();
   await promise;
-  const expected = 30 - (heroStats.atk + heroStats.str) * heroStats.critMultiplier;
+  const expected = 30 - heroAttackPower() * heroStats.critMultiplier;
   expect(monster.stats.hp).toBe(expected);
  });
 

@@ -50,7 +50,6 @@ let heroStats = {
   mp: 30,
   maxHp: 100,
   maxMp: 30,
-  atk: 10,
   str: 10,
   spd: 5,
   mag: 3,
@@ -170,6 +169,10 @@ function weaponDamage() {
     dmg += heroEquipment.right.baseDamage || 0;
   }
   return dmg;
+}
+
+function heroAttackPower() {
+  return heroStats.str + weaponDamage();
 }
 
 function assignDefaultWeapon(job) {
@@ -299,7 +302,6 @@ function checkLevelUp() {
     heroStats.maxMp += 5;
     heroStats.hp += 10;
     heroStats.mp += 5;
-    heroStats.atk += 2;
     heroStats.attributePoints += 3;
     leveled = true;
   }
@@ -424,7 +426,7 @@ async function attackAction() {
   const defendBtn = document.getElementById('defend-btn');
   if (attackBtn) attackBtn.style.display = 'none';
   if (defendBtn) defendBtn.style.display = 'none';
-  let damage = heroStats.atk + heroStats.str + weaponDamage();
+  let damage = heroAttackPower();
   const crit = Math.random() < heroStats.critChance;
   if (crit) damage = Math.floor(damage * heroStats.critMultiplier);
   animateAttack('hero-img','monster-img', damage, crit);
@@ -716,6 +718,7 @@ if (typeof module !== 'undefined' && module.exports) {
     heroEquipment,
     updateEquipmentUI,
     weaponDamage,
+    heroAttackPower,
     updateTurnIndicator,
     getTurn: () => turn,
     setTurn: t => { turn = t; },
