@@ -396,6 +396,48 @@ function animateAttack(attackerId, targetId, damage, isCritical = false) {
   }, 300);
 }
 
+function animateFireball(attackerId, targetId, damage, isCritical = false) {
+  const attacker = document.getElementById(attackerId);
+  const target = document.getElementById(targetId);
+  const container = document.getElementById('combat-container');
+  if (!attacker || !target || !container) {
+    if (damage != null) showDamage(targetId, damage, isCritical);
+    return Promise.resolve();
+  }
+  const aRect = attacker.getBoundingClientRect();
+  const tRect = target.getBoundingClientRect();
+  const cRect = container.getBoundingClientRect();
+  const fireball = document.createElement('div');
+  fireball.className = 'fireball';
+  const startX = aRect.left - cRect.left + aRect.width / 2;
+  const startY = aRect.top - cRect.top + aRect.height / 2;
+  const endX = tRect.left - cRect.left + tRect.width / 2;
+  const endY = tRect.top - cRect.top + tRect.height / 2;
+  fireball.style.left = `${startX}px`;
+  fireball.style.top = `${startY}px`;
+  container.appendChild(fireball);
+  const duration = 600;
+  const peak = -50;
+  return new Promise(resolve => {
+    const startTime = performance.now();
+    function step(time) {
+      const t = Math.min((time - startTime) / duration, 1);
+      const x = startX + (endX - startX) * t;
+      const y = startY + (endY - startY) * t + peak * Math.sin(Math.PI * t);
+      fireball.style.left = `${x}px`;
+      fireball.style.top = `${y}px`;
+      if (t < 1) {
+        requestAnimationFrame(step);
+      } else {
+        if (damage != null) showDamage(targetId, damage, isCritical);
+        fireball.remove();
+        resolve();
+      }
+    }
+    requestAnimationFrame(step);
+  });
+}
+
 function monsterTurn() {
   if (!currentMonster) return '';
   let damage = currentMonster.stats.atk;
@@ -490,7 +532,7 @@ async function castFireballAction() {
   if (fireballBtn) fireballBtn.style.display = 'none';
   heroStats.mp -= FIREBALL_COST;
   const damage = fireballDamage();
-  animateAttack('hero-img','monster-img', damage, false);
+  await animateFireball('hero-img','monster-img', damage, false);
   currentMonster.stats.hp -= damage;
   updateCombatDisplay();
   let msg = `Hero casts Fireball! Monster HP is ${currentMonster.stats.hp}.`;
@@ -784,6 +826,7 @@ if (typeof module !== 'undefined' && module.exports) {
     weaponDamage,
     heroAttackPower,
     fireballDamage,
+    animateFireball,
     updateTurnIndicator,
     getTurn: () => turn,
     setTurn: t => { turn = t; },

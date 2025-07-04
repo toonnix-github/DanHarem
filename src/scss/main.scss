@@ -305,6 +305,16 @@ canvas {
     animation: defeat-fade 0.5s forwards ease-out;
   }
 
+  .fireball {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: radial-gradient(circle, orange 0%, red 60%, darkred 100%);
+    pointer-events: none;
+    // animation handled via JS for a parabolic arc
+  }
+
   #combat-controls {
     position: absolute;
     top: 10px;
