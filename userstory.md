@@ -43,3 +43,10 @@ hero has less than 10 MP. Casting the spell reduces MP immediately and damages
 the target using `MAG` plus a small base value. The existing attack action
 remains for weapon strikes. Added unit tests covering mana consumption, button
 state, and insufficient mana handling.
+
+### User Story 28 Notes
+Added **Double Shot** for Rangers and **Shield Bash** for Knights. Each skill has
+a cooldown timer tracked between turns. Buttons display remaining cooldown and are
+hidden for other jobs. Shield Bash can stun or weaken the enemy for one turn.
+Cooldown counters decrease after the enemy phase. Unit tests cover damage, stun
+behavior, cooldown updates, and job-specific visibility.
