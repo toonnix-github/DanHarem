@@ -382,17 +382,32 @@ function showDamage(targetId, amount, isCritical = false) {
 function animateAttack(attackerId, targetId, damage, isCritical = false) {
   const attacker = document.getElementById(attackerId);
   const target = document.getElementById(targetId);
-  if (attacker) {
-    const cls = attackerId === 'hero-img' ? 'lunge-left' : 'lunge-right';
-    attacker.classList.add('attacking', cls);
+  if (!attacker) {
+    if (target) target.classList.add('damaged');
+    if (damage != null) showDamage(targetId, damage, isCritical);
+    setTimeout(() => {
+      if (target) target.classList.remove('damaged');
+    }, 300);
+    return;
   }
-  if (target) target.classList.add('damaged');
-  if (damage != null) showDamage(targetId, damage, isCritical);
+  const aRect = attacker.getBoundingClientRect();
+  const tRect = target.getBoundingClientRect();
+  const distance =
+    attackerId === 'hero-img'
+      ? tRect.left - aRect.left - aRect.width * 0.5
+      : tRect.left - aRect.left + tRect.width * 0.5;
+  attacker.classList.add('attacking');
+  attacker.style.transition = 'transform 0.3s ease-out';
+  attacker.style.transform = `translateX(${distance}px)`;
   setTimeout(() => {
-    if (attacker) {
-      attacker.classList.remove('attacking', 'lunge-left', 'lunge-right');
-    }
-    if (target) target.classList.remove('damaged');
+    if (target) target.classList.add('damaged');
+    if (damage != null) showDamage(targetId, damage, isCritical);
+    attacker.style.transform = 'translateX(0)';
+    setTimeout(() => {
+      attacker.classList.remove('attacking');
+      attacker.style.transition = '';
+      if (target) target.classList.remove('damaged');
+    }, 300);
   }, 300);
 }
 
