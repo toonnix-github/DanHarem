@@ -1,11 +1,11 @@
 /** @jest-environment jsdom */
-let enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters, playerRewards;
+let enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters, playerRewards, equipWeapon;
 
 beforeEach(() => {
   jest.resetModules();
   jest.useFakeTimers();
   global.Phaser = { Game: jest.fn() };
-  ({ enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters, playerRewards } = require('../public/main.js'));
+  ({ enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters, playerRewards, equipWeapon } = require('../public/main.js'));
   document.body.innerHTML = `
     <div id="combat-container" style="display:none;">
       <div class="battle-panel">
@@ -52,12 +52,23 @@ test('attackAction damages monster and hero takes damage', async () => {
   expect(document.getElementById('turn-indicator').textContent).toBe('Player Turn');
   await flushTimers();
   await promise;
-  expect(monster.stats.hp).toBe(20);
+  expect(monster.stats.hp).toBe(10);
   expect(heroStats.hp).toBe(95);
   expect(document.getElementById('hero-hp-fill').style.width).toBe('95%');
-  expect(document.getElementById('monster-hp-fill').style.width).toBe('66.66666666666666%');
+  expect(document.getElementById('monster-hp-fill').style.width).toBe('33.33333333333333%');
   expect(document.getElementById('combat-message').textContent).toContain('Monster attacks');
   expect(document.getElementById('turn-indicator').textContent).toBe('Player Turn');
+});
+
+test('weapon base damage increases attack', async () => {
+  equipWeapon('right', { name: 'Sword', twoHanded: false, baseDamage: 5, type: 'sword' });
+  const monster = { stats: { hp: 40, maxHp: 40, atk: 0 } };
+  enterBattle(monster);
+  const promise = attackAction();
+  await flushTimers();
+  await promise;
+  const expected = 40 - (heroStats.atk + heroStats.str + 5);
+  expect(monster.stats.hp).toBe(expected);
 });
 
  test('critical hit deals bonus damage', async () => {
@@ -67,9 +78,10 @@ test('attackAction damages monster and hero takes damage', async () => {
    enterBattle(monster);
    const promise = attackAction();
    expect(document.querySelector(".damage-number.critical")).not.toBeNull();
-   await flushTimers();
-   await promise;
-   expect(monster.stats.hp).toBe(30 - heroStats.atk * heroStats.critMultiplier);
+  await flushTimers();
+  await promise;
+  const expected = 30 - (heroStats.atk + heroStats.str) * heroStats.critMultiplier;
+  expect(monster.stats.hp).toBe(expected);
  });
 
 test('defendAction reduces incoming damage', async () => {
