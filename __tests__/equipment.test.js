@@ -41,3 +41,27 @@ test('equipping one-handed clears two-handed weapon', () => {
   expect(document.getElementById('left-hand-slot').textContent).toBe('Sword');
   expect(document.getElementById('right-hand-slot').textContent).toBe('Empty');
 });
+
+test('equipping two-handed weapon replaces both one-handed weapons', () => {
+  const sword = { name: 'Sword', twoHanded: false };
+  const dagger = { name: 'Dagger', twoHanded: false };
+  equipWeapon('left', sword);
+  equipWeapon('right', dagger);
+  const gs = { name: 'Greatsword', twoHanded: true };
+  equipWeapon('left', gs);
+  expect(heroEquipment.left).toBe(gs);
+  expect(heroEquipment.right).toBe(gs);
+  expect(document.getElementById('left-hand-slot').textContent).toBe('Greatsword');
+  expect(document.getElementById('right-hand-slot').textContent).toBe('Greatsword');
+});
+
+test('one-handed weapons equip independently', () => {
+  const sword = { name: 'Sword', twoHanded: false };
+  const dagger = { name: 'Dagger', twoHanded: false };
+  equipWeapon('left', sword);
+  equipWeapon('right', dagger);
+  expect(heroEquipment.left).toBe(sword);
+  expect(heroEquipment.right).toBe(dagger);
+  expect(document.getElementById('left-hand-slot').textContent).toBe('Sword');
+  expect(document.getElementById('right-hand-slot').textContent).toBe('Dagger');
+});
