@@ -17,3 +17,21 @@
 - User Story 16: Hero Attribute Allocation.
 - User Story 22f: Weapon Equip Logic for One-Handed and Two-Handed Weapons.
 - User Story 22g: Add Weapon Attributes and Integrate Them into Combat Calculations.
+- User Story 22b: Weapon Durability Tracking with Status Visualization.
+
+### User Story 22b Notes
+The durability system attaches a `durability` value to each weapon object. Durability
+starts at **100%** when equipped and decreases by 5% on every attack. Weapons never
+break, but their damage output scales linearly with remaining durability. When a
+weapon falls below 30% it is considered in **bad shape** and shown in red.
+
+#### UI and Visualization
+- Equipment slots are labeled "Left Hand" and "Right Hand".
+- Each slot displays weapon name, base damage and current durability percentage.
+- Slot backgrounds change color based on durability (green >70%, yellow 30-70%, red <30%).
+
+#### Implementation Highlights
+- `equipWeapon` initializes durability and handles two-handed logic.
+- `degradeWeapon` reduces durability when an attack occurs.
+- `weaponDamage` factors durability into the damage calculation.
+- `updateEquipmentUI` updates slot text and status classes in real time.

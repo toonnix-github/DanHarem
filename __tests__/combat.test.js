@@ -64,23 +64,25 @@ test('weapon base damage increases attack', async () => {
   equipWeapon('right', { name: 'Sword', twoHanded: false, baseDamage: 5, type: 'sword' });
   const monster = { stats: { hp: 40, maxHp: 40, atk: 0 } };
   enterBattle(monster);
+  const before = heroAttackPower();
   const promise = attackAction();
   await flushTimers();
   await promise;
-  const expected = 40 - heroAttackPower();
+  const expected = 40 - before;
   expect(monster.stats.hp).toBe(expected);
 });
 
  test('critical hit deals bonus damage', async () => {
    const monster = { stats: { hp: 30, maxHp: 30, atk: 0 } };
    heroStats.critChance = 1;
-   heroStats.critMultiplier = 2;
-   enterBattle(monster);
-   const promise = attackAction();
-   expect(document.querySelector(".damage-number.critical")).not.toBeNull();
+  heroStats.critMultiplier = 2;
+  enterBattle(monster);
+  const before = heroAttackPower();
+  const promise = attackAction();
+  expect(document.querySelector(".damage-number.critical")).not.toBeNull();
   await flushTimers();
   await promise;
-  const expected = 30 - heroAttackPower() * heroStats.critMultiplier;
+  const expected = 30 - before * heroStats.critMultiplier;
   expect(monster.stats.hp).toBe(expected);
  });
 

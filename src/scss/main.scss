@@ -37,6 +37,20 @@ canvas {
 
   .weapon-slot {
     margin-bottom: 4px;
+    padding: 2px 4px;
+    border: 1px solid #fff;
+  }
+  .status-good {
+    background: #0a0;
+    color: #fff;
+  }
+  .status-worn {
+    background: #aa0;
+    color: #000;
+  }
+  .status-bad {
+    background: #a00;
+    color: #fff;
   }
 }
 

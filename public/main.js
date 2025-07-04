@@ -61,6 +61,7 @@ let heroStats = {
   critMultiplier: 1.5,
 };
 let heroEquipment = { left: null, right: null };
+const DURABILITY_LOSS_PER_USE = 5;
 const defaultWeapons = {
   Knight: { name: 'Sword', type: 'sword', twoHanded: false, baseDamage: 5 },
   Ranger: { name: 'Bow', type: 'bow', twoHanded: true, baseDamage: 4 },
@@ -113,16 +114,21 @@ function updateHeroHUD() {
 function updateEquipmentUI() {
   const leftSlot = document.getElementById('left-hand-slot');
   const rightSlot = document.getElementById('right-hand-slot');
-  if (leftSlot) {
-    leftSlot.textContent = heroEquipment.left
-      ? `${heroEquipment.left.name} (${heroEquipment.left.baseDamage})`
-      : 'Empty';
-  }
-  if (rightSlot) {
-    rightSlot.textContent = heroEquipment.right
-      ? `${heroEquipment.right.name} (${heroEquipment.right.baseDamage})`
-      : 'Empty';
-  }
+  const applyStatus = (el, weapon) => {
+    if (!el) return;
+    el.classList.remove('status-good', 'status-worn', 'status-bad');
+    if (!weapon) {
+      el.textContent = 'Empty';
+      return;
+    }
+    const dur = weapon.durability ?? 0;
+    el.textContent = `${weapon.name} (${weapon.baseDamage}) - ${dur}%`;
+    if (dur > 70) el.classList.add('status-good');
+    else if (dur > 30) el.classList.add('status-worn');
+    else el.classList.add('status-bad');
+  };
+  applyStatus(leftSlot, heroEquipment.left);
+  applyStatus(rightSlot, heroEquipment.right);
 }
 
 function updateAttributeUI() {
@@ -145,6 +151,7 @@ function allocateAttribute(stat) {
 
 function equipWeapon(slot, weapon) {
   if (!weapon || (slot !== 'left' && slot !== 'right')) return;
+  if (weapon.durability == null) weapon.durability = 100;
   if (weapon.twoHanded) {
     heroEquipment.left = weapon;
     heroEquipment.right = weapon;
@@ -162,13 +169,19 @@ function equipWeapon(slot, weapon) {
   updateEquipmentUI();
 }
 
+function degradeWeapon(weapon, amount = DURABILITY_LOSS_PER_USE) {
+  if (!weapon) return;
+  weapon.durability = Math.max(0, (weapon.durability || 0) - amount);
+}
+
 function weaponDamage() {
+  const calc = w => (w.baseDamage || 0) * ((w.durability ?? 0) / 100);
   let dmg = 0;
-  if (heroEquipment.left) dmg += heroEquipment.left.baseDamage || 0;
+  if (heroEquipment.left) dmg += calc(heroEquipment.left);
   if (heroEquipment.right && heroEquipment.right !== heroEquipment.left) {
-    dmg += heroEquipment.right.baseDamage || 0;
+    dmg += calc(heroEquipment.right);
   }
-  return dmg;
+  return Math.floor(dmg);
 }
 
 function heroAttackPower() {
@@ -431,6 +444,11 @@ async function attackAction() {
   if (crit) damage = Math.floor(damage * heroStats.critMultiplier);
   animateAttack('hero-img','monster-img', damage, crit);
   currentMonster.stats.hp -= damage;
+  if (heroEquipment.left) degradeWeapon(heroEquipment.left);
+  if (heroEquipment.right && heroEquipment.right !== heroEquipment.left) {
+    degradeWeapon(heroEquipment.right);
+  }
+  updateEquipmentUI();
   updateCombatDisplay();
   let msg = crit ? `Hero critically hits! Monster HP is ${currentMonster.stats.hp}.` : `Hero attacks! Monster HP is ${currentMonster.stats.hp}.`;
   setCombatMessage(msg);
