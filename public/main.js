@@ -56,7 +56,8 @@ let heroStats = {
   mag: 3,
   level: 1,
   exp: 0,
-  defending: false
+  defending: false,
+  attributePoints: 0
 };
 let playerRewards = { exp: 0, gold: 0, items: [] };
 let cursors;
@@ -100,6 +101,24 @@ function updateHeroHUD() {
     `<div>HP: ${heroStats.hp}/${heroStats.maxHp}</div>` +
     `<div>MP: ${heroStats.mp}/${heroStats.maxMp}</div>` +
     `<div>STR: ${heroStats.str} SPD: ${heroStats.spd} MAG: ${heroStats.mag}</div>`;
+}
+
+function updateAttributeUI() {
+  const container = document.getElementById('attribute-container');
+  const span = document.getElementById('points-remaining');
+  if (!container || !span) return;
+  span.textContent = heroStats.attributePoints;
+  container.style.display = heroStats.attributePoints > 0 ? 'block' : 'none';
+}
+
+function allocateAttribute(stat) {
+  if (heroStats.attributePoints <= 0) return;
+  if (stat === 'str' || stat === 'spd' || stat === 'mag') {
+    heroStats[stat] += 1;
+    heroStats.attributePoints -= 1;
+    updateHeroHUD();
+    updateAttributeUI();
+  }
 }
 
 function updateHPBars() {
@@ -223,12 +242,14 @@ function checkLevelUp() {
     heroStats.hp += 10;
     heroStats.mp += 5;
     heroStats.atk += 2;
+    heroStats.attributePoints += 3;
     leveled = true;
   }
   if (leveled) {
     const msgEl = document.getElementById('level-up-message');
     if (msgEl) msgEl.textContent = `Level Up! Level ${heroStats.level}`;
     updateHeroHUD();
+    updateAttributeUI();
   }
 }
 
@@ -241,6 +262,7 @@ function handleRewards() {
   if (msgEl) msgEl.textContent = `Earned ${reward.exp} XP`;
   checkLevelUp();
   updateHeroHUD();
+  updateAttributeUI();
   return new Promise(resolve => {
     if (container) {
       container.style.display = 'block';
@@ -485,6 +507,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const continueBtn = document.getElementById('job-continue');
   const attackBtn = document.getElementById('attack-btn');
   const defendBtn = document.getElementById('defend-btn');
+  const strBtn = document.getElementById('str-plus');
+  const spdBtn = document.getElementById('spd-plus');
+  const magBtn = document.getElementById('mag-plus');
 
   let selectedClan = localStorage.getItem('selectedClan') || null;
   let selectedJob = localStorage.getItem('selectedJob') || null;
@@ -563,6 +588,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (attackBtn) attackBtn.addEventListener('click', attackAction);
   if (defendBtn) defendBtn.addEventListener('click', defendAction);
+  if (strBtn) strBtn.addEventListener('click', () => allocateAttribute('str'));
+  if (spdBtn) spdBtn.addEventListener('click', () => allocateAttribute('spd'));
+  if (magBtn) magBtn.addEventListener('click', () => allocateAttribute('mag'));
 
   if (form) {
     form.addEventListener('submit', e => {
@@ -590,6 +618,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   initPhase();
   updateHeroHUD();
+  updateAttributeUI();
 });
 
 // expose functions for testing
@@ -612,6 +641,8 @@ if (typeof module !== 'undefined' && module.exports) {
     endBattle,
     handleRewards,
     updateHeroHUD,
+    updateAttributeUI,
+    allocateAttribute,
     updateTurnIndicator,
     getTurn: () => turn,
     setTurn: t => { turn = t; },

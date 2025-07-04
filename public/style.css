@@ -314,5 +314,13 @@ canvas {
   margin-top: 5px;
   font-weight: bold;
 }
+#reward-container #attribute-container {
+  margin-top: 5px;
+  text-align: center;
+  display: none;
+}
+#reward-container #attribute-container button {
+  margin: 0 5px;
+}
 
 /*# sourceMappingURL=style.css.map */

@@ -1,12 +1,22 @@
 /** @jest-environment jsdom */
-let handleRewards, heroStats;
+let handleRewards, heroStats, allocateAttribute;
 
 beforeEach(() => {
   jest.resetModules();
   jest.useFakeTimers();
   global.Phaser = { Game: jest.fn() };
-  ({ handleRewards, heroStats } = require('../public/main.js'));
-  document.body.innerHTML = '<div id="reward-container"><div id="reward-message"></div><div id="level-up-message"></div></div>';
+  ({ handleRewards, heroStats, allocateAttribute } = require('../public/main.js'));
+  document.body.innerHTML = `
+    <div id="reward-container">
+      <div id="reward-message"></div>
+      <div id="level-up-message"></div>
+      <div id="attribute-container">
+        <div>Points left: <span id="points-remaining">0</span></div>
+        <button id="str-plus"></button>
+        <button id="spd-plus"></button>
+        <button id="mag-plus"></button>
+      </div>
+    </div>`;
 });
 
 async function flushTimers() {
@@ -24,4 +34,15 @@ test('hero levels up after gaining sufficient experience', async () => {
   expect(heroStats.level).toBe(2);
   expect(document.getElementById('level-up-message').textContent).toContain('Level 2');
   await flushTimers();
+});
+
+test('attribute points awarded and can be allocated', async () => {
+  handleRewards();
+  await flushTimers();
+  handleRewards();
+  expect(heroStats.attributePoints).toBe(3);
+  allocateAttribute('str');
+  expect(heroStats.str).toBe(11);
+  expect(heroStats.attributePoints).toBe(2);
+  expect(document.getElementById('points-remaining').textContent).toBe('2');
 });
