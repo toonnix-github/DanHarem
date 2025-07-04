@@ -109,12 +109,6 @@ function updateAttributeUI() {
   if (!container || !span) return;
   span.textContent = heroStats.attributePoints;
   container.style.display = heroStats.attributePoints > 0 ? 'block' : 'none';
-  if (heroStats.attributePoints === 0) {
-    const reward = document.getElementById('reward-container');
-    if (reward) reward.style.display = 'none';
-    const lvlMsg = document.getElementById('level-up-message');
-    if (lvlMsg) lvlMsg.textContent = '';
-  }
 }
 
 function allocateAttribute(stat) {
@@ -273,11 +267,9 @@ function handleRewards() {
     if (container) {
       container.style.display = 'block';
       setTimeout(() => {
-        if (heroStats.attributePoints === 0) {
-          container.style.display = 'none';
-          const lvlMsg = document.getElementById('level-up-message');
-          if (lvlMsg) lvlMsg.textContent = '';
-        }
+        container.style.display = 'none';
+        const lvlMsg = document.getElementById('level-up-message');
+        if (lvlMsg) lvlMsg.textContent = '';
         resolve();
       }, 3000);
     } else {

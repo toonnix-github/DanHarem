@@ -10,12 +10,12 @@ beforeEach(() => {
     <div id="reward-container">
       <div id="reward-message"></div>
       <div id="level-up-message"></div>
-      <div id="attribute-container">
-        <div>Points left: <span id="points-remaining">0</span></div>
-        <button id="str-plus"></button>
-        <button id="spd-plus"></button>
-        <button id="mag-plus"></button>
-      </div>
+    </div>
+    <div id="attribute-container">
+      <div>Points left: <span id="points-remaining">0</span></div>
+      <button id="str-plus"></button>
+      <button id="spd-plus"></button>
+      <button id="mag-plus"></button>
     </div>`;
 });
 
@@ -40,13 +40,16 @@ test('attribute points awarded and can be allocated', async () => {
   handleRewards();
   await flushTimers();
   handleRewards();
-  const container = document.getElementById('reward-container');
+  const reward = document.getElementById('reward-container');
+  const attr = document.getElementById('attribute-container');
   expect(heroStats.attributePoints).toBe(3);
+  expect(reward.style.display).toBe('block');
   jest.runOnlyPendingTimers();
-  expect(container.style.display).toBe('block');
+  expect(reward.style.display).toBe('none');
+  expect(attr.style.display).toBe('block');
   allocateAttribute('str');
   allocateAttribute('spd');
   allocateAttribute('mag');
   expect(heroStats.attributePoints).toBe(0);
-  expect(container.style.display).toBe('none');
+  expect(attr.style.display).toBe('none');
 });
