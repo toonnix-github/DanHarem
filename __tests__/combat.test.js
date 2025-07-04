@@ -26,6 +26,7 @@ beforeEach(() => {
       <div id="combat-message"></div>
     </div>
     <div id="reward-container"><div id="reward-message"></div></div>`;
+  heroStats.critChance = 0;
 });
 
 async function flushTimers() {

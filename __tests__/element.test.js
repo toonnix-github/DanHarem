@@ -1,13 +1,15 @@
 /** @jest-environment jsdom */
 let create, getMonsters, enterBattle, castFireballAction,
-    heroStats, modifyMonsterResistance, updateMonsterInfo;
+    heroStats, modifyMonsterResistance, setMonsterElement, updateMonsterInfo,
+    ELEMENT_ICONS;
 
 beforeEach(() => {
   jest.resetModules();
   jest.useFakeTimers();
   global.Phaser = { Game: jest.fn(), Input: { Keyboard: { KeyCodes: {} } } };
   ({ create, getMonsters, enterBattle, castFireballAction,
-     heroStats, modifyMonsterResistance, updateMonsterInfo } = require('../public/main.js'));
+     heroStats, modifyMonsterResistance, setMonsterElement, updateMonsterInfo,
+     ELEMENT_ICONS } = require('../public/main.js'));
   document.body.innerHTML = `
     <div id="combat-container" style="display:none;">
       <div class="battle-panel">
@@ -85,4 +87,18 @@ test('modifyMonsterResistance affects damage calculation', async () => {
   await flushTimers();
   await promise;
   expect(monster.stats.hp).toBe(40 - Math.floor(base * (1 - 0.5)));
+});
+
+test('monster element icon updates with element', () => {
+  const monster = { element: 'Fire', resistances: {}, stats: { hp: 10, atk: 0 } };
+  document.body.innerHTML += '<img id="monster-element-icon">';
+  enterBattle(monster);
+  updateMonsterInfo();
+  let icon = document.getElementById('monster-element-icon');
+  expect(icon.src).toBe(ELEMENT_ICONS.fire);
+  expect(icon.title).toBe('Fire');
+  setMonsterElement(monster, 'Water');
+  updateMonsterInfo();
+  expect(icon.src).toBe(ELEMENT_ICONS.water);
+  expect(icon.title).toBe('Water');
 });
