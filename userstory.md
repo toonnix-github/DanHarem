@@ -87,6 +87,10 @@ Add foundational abilities beyond Fireball, Double Shot, and Shield Bash.
 ### User Story 30 Notes
 The town now spawns three NPCs at random locations. Each NPC wanders around the map at its own speed and shows a short text bubble above its head when the hero approaches. Players can still press **E** or click an NPC to bring up a larger dialogue box. NPCs respawn whenever the player returns to town.
 
+### User Story 31b Notes
+Implemented a basic companion shop. Monsters now drop 1 gold along with XP. The HUD shows current gold and the shop lists available recruits with their stats and price (currently 1). Buying a companion deducts gold, adds them to the inventory and shows a confirmation or an insufficient funds warning. Unit tests cover purchase validation, currency deduction and the gold reward from combat.
+The shop now appears as a dedicated building in town with a clear banner. Players can click the building or press **E** nearby to open the recruitment menu.
+
 ### User Story 31a Notes
 Companion data uses a simple schema:
 `{ id, name, job, level, stats: { hp, attack, defense, speed } }`.
