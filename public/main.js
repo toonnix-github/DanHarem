@@ -934,8 +934,8 @@ function update() {
   if (checkTile(hero.x, newY - halfH) && checkTile(hero.x, newY + halfH - 1)) {
     hero.y = newY;
   }
-  const width = this.sys.game.config.width;
-  const height = this.sys.game.config.height;
+  const width = mapData[0].length * tileSize;
+  const height = mapData.length * tileSize;
   hero.x = Math.max(halfW, Math.min(width - halfW, hero.x));
   hero.y = Math.max(halfH, Math.min(height - halfH, hero.y));
 
@@ -1018,8 +1018,8 @@ function townUpdate() {
   if (checkTile(hero.x, newY - halfH) && checkTile(hero.x, newY + halfH - 1)) {
     hero.y = newY;
   }
-  const width = this.sys.game.config.width;
-  const height = this.sys.game.config.height;
+  const width = townMapData[0].length * tileSize;
+  const height = townMapData.length * tileSize;
   hero.x = Math.max(halfW, Math.min(width - halfW, hero.x));
   hero.y = Math.max(halfH, Math.min(height - halfH, hero.y));
   const heroTileX = Math.floor(hero.x / tileSize);
