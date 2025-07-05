@@ -18,6 +18,7 @@
 - User Story 22f: Weapon Equip Logic for One-Handed and Two-Handed Weapons.
 - User Story 22g: Add Weapon Attributes and Integrate Them into Combat Calculations.
 - User Story 22b: Weapon Durability Tracking with Status Visualization.
+- User Story 31a: Companion Data Model and Inventory.
 
 ### User Story 22b Notes
 The durability system attaches a `durability` value to each weapon object. Durability
@@ -85,3 +86,13 @@ Add foundational abilities beyond Fireball, Double Shot, and Shield Bash.
 
 ### User Story 30 Notes
 The town now spawns three NPCs at random locations. Each NPC wanders around the map at its own speed and shows a short text bubble above its head when the hero approaches. Players can still press **E** or click an NPC to bring up a larger dialogue box. NPCs respawn whenever the player returns to town.
+
+### User Story 31a Notes
+Companion data uses a simple schema:
+`{ id, name, job, level, stats: { hp, attack, defense, speed } }`.
+All owned companions are stored in an array saved to `localStorage` under
+`companionInventory` with an incremental `companionIdCounter` for unique IDs.
+The `companion.js` module exposes `addCompanion`, `removeCompanion`, and
+`getInventory` helpers. On page load it restores saved companions and populates
+the new `#companion-inventory` list so the roster persists across sessions.
+Unit tests cover inventory operations, DOM updates, and persistence.
