@@ -88,3 +88,4 @@ The town now spawns three NPCs at random locations. Each NPC wanders around the 
 
 ### User Story 31b Notes
 Implemented a basic companion shop. Monsters now drop 1 gold along with XP. The HUD shows current gold and the shop lists available recruits with their stats and price (currently 1). Buying a companion deducts gold, adds them to the inventory and shows a confirmation or an insufficient funds warning. Unit tests cover purchase validation, currency deduction and the gold reward from combat.
+The shop now appears as a dedicated building in town with a clear banner. Players can click the building or press **E** nearby to open the recruitment menu.

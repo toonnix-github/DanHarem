@@ -41,6 +41,7 @@ const TOWN_DOOR = { x: 1, y: townMapData.length - 1 };
 const TOWN_ENTRY = { x: 1, y: townMapData.length - 2 };
 townMapData[TOWN_DOOR.y][TOWN_DOOR.x] = 1;
 townMapData[TOWN_ENTRY.y][TOWN_ENTRY.x] = 1;
+const SHOP_POS = { x: Math.floor(townMapData[0].length / 2), y: 3 };
 
 const DUNGEON_ENTRY = { x: DUNGEON_DOOR.x, y: DUNGEON_DOOR.y + 1 };
 const VIEW_WIDTH = tileSize * 20;
@@ -73,6 +74,7 @@ let heroStats = {
 };
 let heroEquipment = { left: null, right: null };
 let npcs = [];
+let shopBuilding;
 let interactKey;
 const DEFAULT_RESISTANCES = { Physical: 0, Fire: 0, Water: 0 };
 const ELEMENT_ICONS = {
@@ -1052,6 +1054,19 @@ function townCreate(data = {}) {
   }
   interactKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
 
+  const shopX = SHOP_POS.x * tileSize + tileSize;
+  const shopY = SHOP_POS.y * tileSize + tileSize;
+  shopBuilding = this.add.rectangle(shopX, shopY, tileSize * 2, tileSize * 2, 0x775533);
+  shopBuilding.setOrigin(0.5, 0.5);
+  shopBuilding.setInteractive();
+  shopBuilding.on('pointerdown', showCompanionShop);
+  this.add.text(shopX, shopY - tileSize, 'SHOP', {
+    font: '16px monospace',
+    color: '#ffff00',
+    backgroundColor: '#000000',
+    padding: { x: 4, y: 2 }
+  }).setOrigin(0.5, 1);
+
   const randomTownTile = () => {
     let x, y;
     do {
@@ -1085,7 +1100,7 @@ function townCreate(data = {}) {
   };
 
   npcs = [
-    createNPC('Merchant: Take a look at my goods.', showCompanionShop),
+    createNPC('Merchant: Take a look at my goods.'),
     createNPC('Quest Giver: Adventurers wanted!'),
     createNPC('Townsfolk: Hello there.')
   ];
@@ -1165,6 +1180,11 @@ function townUpdate() {
         if (npc.interactCallback) npc.interactCallback();
       }
     });
+    const shopX = SHOP_POS.x * tileSize + tileSize;
+    const shopY = SHOP_POS.y * tileSize + tileSize;
+    if (Phaser.Math.Distance.Between(hero.x, hero.y, shopX, shopY) < tileSize * 2) {
+      showCompanionShop();
+    }
   }
   if (heroTileX === TOWN_DOOR.x && heroTileY === TOWN_DOOR.y) {
     this.scene.start("DungeonScene", { x: DUNGEON_ENTRY.x * tileSize + tileSize / 2, y: DUNGEON_ENTRY.y * tileSize + tileSize / 2 });
