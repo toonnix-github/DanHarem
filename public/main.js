@@ -73,13 +73,17 @@ const ELEMENT_ICONS = {
 const DURABILITY_LOSS_PER_USE = 5;
 const FIREBALL_COST = 10;
 const FIREBALL_BASE_DAMAGE = 5;
+const HEAL_COST = 10;
+const HEAL_AMOUNT = 25;
+const STUNNING_STRIKE_COOLDOWN = 2;
+const STUNNING_STRIKE_STUN_CHANCE = 0.3;
 const defaultWeapons = {
   Knight: { name: 'Sword', type: 'sword', twoHanded: false, baseDamage: 5 },
   Ranger: { name: 'Bow', type: 'bow', twoHanded: true, baseDamage: 4 },
   Mage: { name: 'Staff', type: 'staff', twoHanded: true, baseDamage: 3 }
 };
 let playerRewards = { exp: 0, gold: 0, items: [] };
-let skillCooldowns = { doubleShot: 0, shieldBash: 0 };
+let skillCooldowns = { doubleShot: 0, shieldBash: 0, stunningStrike: 0 };
 let cursors;
 let wasd;
 let monsters = [];
@@ -116,12 +120,18 @@ function updateTurnIndicator() {
 function updateSkillButtons() {
   const job = localStorage.getItem('selectedJob');
   const fireballBtn = document.getElementById('fireball-btn');
+  const healBtn = document.getElementById('heal-btn');
   const doubleBtn = document.getElementById('double-shot-btn');
   const bashBtn = document.getElementById('shield-bash-btn');
+  const stunBtn = document.getElementById('stun-strike-btn');
   const display = turn === 'player' ? 'inline-block' : 'none';
   if (fireballBtn) {
     fireballBtn.style.display = job === 'Mage' ? display : 'none';
     fireballBtn.disabled = heroStats.mp < FIREBALL_COST;
+  }
+  if (healBtn) {
+    healBtn.style.display = job === 'Mage' ? display : 'none';
+    healBtn.disabled = heroStats.mp < HEAL_COST;
   }
   if (doubleBtn) {
     doubleBtn.style.display = job === 'Ranger' ? display : 'none';
@@ -138,6 +148,14 @@ function updateSkillButtons() {
       skillCooldowns.shieldBash > 0
         ? `Shield Bash (${skillCooldowns.shieldBash})`
         : 'Shield Bash';
+  }
+  if (stunBtn) {
+    stunBtn.style.display = job === 'Knight' ? display : 'none';
+    stunBtn.disabled = skillCooldowns.stunningStrike > 0;
+    stunBtn.textContent =
+      skillCooldowns.stunningStrike > 0
+        ? `Stunning Strike (${skillCooldowns.stunningStrike})`
+        : 'Stunning Strike';
   }
 }
 
@@ -745,6 +763,70 @@ async function shieldBashAction() {
   return enemyPhase(msg);
 }
 
+async function healAction() {
+  if (!currentMonster || turn !== 'player' || heroStats.mp < HEAL_COST) return '';
+  const attackBtn = document.getElementById('attack-btn');
+  const defendBtn = document.getElementById('defend-btn');
+  const healBtn = document.getElementById('heal-btn');
+  const fireballBtn = document.getElementById('fireball-btn');
+  const stunBtn = document.getElementById('stun-strike-btn');
+  [attackBtn, defendBtn, healBtn, fireballBtn, stunBtn].forEach(btn => {
+    if (btn) btn.style.display = 'none';
+  });
+  heroStats.mp -= HEAL_COST;
+  heroStats.hp = Math.min(heroStats.maxHp, heroStats.hp + HEAL_AMOUNT);
+  updateCombatDisplay();
+  const msg = `Hero casts Heal! HP is ${heroStats.hp}.`;
+  setCombatMessage(msg);
+  await delay(1000);
+  return enemyPhase(msg);
+}
+
+async function stunningStrikeAction() {
+  if (!currentMonster || turn !== 'player' || skillCooldowns.stunningStrike > 0) return '';
+  const attackBtn = document.getElementById('attack-btn');
+  const defendBtn = document.getElementById('defend-btn');
+  const doubleBtn = document.getElementById('double-shot-btn');
+  const bashBtn = document.getElementById('shield-bash-btn');
+  const fireballBtn = document.getElementById('fireball-btn');
+  const healBtn = document.getElementById('heal-btn');
+  const stunBtn = document.getElementById('stun-strike-btn');
+  [attackBtn, defendBtn, doubleBtn, bashBtn, fireballBtn, healBtn, stunBtn].forEach(btn => {
+    if (btn) btn.style.display = 'none';
+  });
+  skillCooldowns.stunningStrike = STUNNING_STRIKE_COOLDOWN;
+  let damage = Math.floor(heroAttackPower() * 0.5);
+  damage = applyResistance(currentMonster, damage, 'Physical');
+  animateAttack('hero-img', 'monster-img', damage, false);
+  currentMonster.stats.hp -= damage;
+  if (heroEquipment.left) degradeWeapon(heroEquipment.left);
+  if (heroEquipment.right && heroEquipment.right !== heroEquipment.left) {
+    degradeWeapon(heroEquipment.right);
+  }
+  updateEquipmentUI();
+  updateCombatDisplay();
+  let msg = `Hero uses Stunning Strike! Monster HP is ${currentMonster.stats.hp}.`;
+  if (Math.random() < STUNNING_STRIKE_STUN_CHANCE) {
+    currentMonster.stunned = true;
+    msg = `Hero uses Stunning Strike! Monster stunned. HP is ${currentMonster.stats.hp}.`;
+  }
+  setCombatMessage(msg);
+  if (currentMonster.stats.hp <= 0) {
+    const finalMsg = 'Hero uses Stunning Strike! Monster defeated!';
+    setCombatMessage(finalMsg);
+    const mImg = document.getElementById('monster-img');
+    const icon = document.getElementById('monster-element-icon');
+    if (mImg) mImg.classList.add('defeated');
+    if (icon) icon.style.display = 'none';
+    await handleRewards();
+    endBattle(finalMsg);
+    if (mImg) mImg.classList.remove('defeated');
+    return finalMsg;
+  }
+  await delay(1000);
+  return enemyPhase(msg);
+}
+
 async function defendAction() {
   if (!currentMonster || turn !== 'player') return '';
   const attackBtn = document.getElementById('attack-btn');
@@ -875,6 +957,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const fireballBtn = document.getElementById('fireball-btn');
   const doubleShotBtn = document.getElementById('double-shot-btn');
   const shieldBashBtn = document.getElementById('shield-bash-btn');
+  const healBtn = document.getElementById('heal-btn');
+  const stunBtn = document.getElementById('stun-strike-btn');
   const strBtn = document.getElementById('str-plus');
   const spdBtn = document.getElementById('spd-plus');
   const magBtn = document.getElementById('mag-plus');
@@ -961,6 +1045,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (fireballBtn) fireballBtn.addEventListener('click', castFireballAction);
   if (doubleShotBtn) doubleShotBtn.addEventListener('click', doubleShotAction);
   if (shieldBashBtn) shieldBashBtn.addEventListener('click', shieldBashAction);
+  if (healBtn) healBtn.addEventListener('click', healAction);
+  if (stunBtn) stunBtn.addEventListener('click', stunningStrikeAction);
   if (strBtn) strBtn.addEventListener('click', () => allocateAttribute('str'));
   if (spdBtn) spdBtn.addEventListener('click', () => allocateAttribute('spd'));
   if (magBtn) magBtn.addEventListener('click', () => allocateAttribute('mag'));
@@ -1032,6 +1118,8 @@ if (typeof module !== 'undefined' && module.exports) {
     setMonsterElement,
     doubleShotAction,
     shieldBashAction,
+    healAction,
+    stunningStrikeAction,
     skillCooldowns,
     updateSkillButtons,
     decrementCooldowns,

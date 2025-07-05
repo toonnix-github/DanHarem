@@ -1,11 +1,29 @@
 /** @jest-environment jsdom */
-let enterBattle, heroStats, doubleShotAction, shieldBashAction, skillCooldowns, updateTurnIndicator, heroAttackPower;
+let enterBattle,
+  heroStats,
+  doubleShotAction,
+  shieldBashAction,
+  healAction,
+  stunningStrikeAction,
+  skillCooldowns,
+  updateTurnIndicator,
+  heroAttackPower;
 
 beforeEach(() => {
   jest.resetModules();
   jest.useFakeTimers();
   global.Phaser = { Game: jest.fn() };
-  ({ enterBattle, heroStats, doubleShotAction, shieldBashAction, skillCooldowns, updateTurnIndicator, heroAttackPower } = require('../public/main.js'));
+  ({
+    enterBattle,
+    heroStats,
+    doubleShotAction,
+    shieldBashAction,
+    healAction,
+    stunningStrikeAction,
+    skillCooldowns,
+    updateTurnIndicator,
+    heroAttackPower
+  } = require('../public/main.js'));
   document.body.innerHTML = `
     <div id="combat-container" style="display:none;">
       <div class="battle-panel">
@@ -22,7 +40,9 @@ beforeEach(() => {
         <button id="attack-btn">Attack</button>
         <button id="double-shot-btn">Double Shot</button>
         <button id="shield-bash-btn">Shield Bash</button>
+        <button id="stun-strike-btn">Stunning Strike</button>
         <button id="fireball-btn">Fireball</button>
+        <button id="heal-btn">Heal</button>
         <button id="defend-btn">Defend</button>
         <div id="turn-indicator"></div>
       </div>
@@ -76,4 +96,32 @@ test('skill buttons hidden for other jobs', () => {
   expect(document.getElementById('double-shot-btn').style.display).toBe('none');
   expect(document.getElementById('shield-bash-btn').style.display).toBe('none');
   expect(document.getElementById('fireball-btn').style.display).toBe('inline-block');
+});
+
+test('heal restores hp and costs mana', async () => {
+  localStorage.setItem('selectedJob', 'Mage');
+  heroStats.hp = 50;
+  heroStats.mp = 20;
+  const monster = { stats: { hp: 30, maxHp: 30, atk: 0 } };
+  enterBattle(monster);
+  const promise = healAction();
+  await flushTimers();
+  await promise;
+  expect(heroStats.hp).toBe(75);
+  expect(heroStats.mp).toBe(10);
+});
+
+test('stunning strike can stun and enters cooldown', async () => {
+  localStorage.setItem('selectedJob', 'Knight');
+  const monster = { stats: { hp: 40, maxHp: 40, atk: 5 } };
+  jest.spyOn(Math, 'random').mockReturnValue(0.1); // force stun
+  enterBattle(monster);
+  const dmg = Math.floor(heroAttackPower() * 0.5);
+  const promise = stunningStrikeAction();
+  await flushTimers();
+  await promise;
+  expect(monster.stats.hp).toBe(40 - dmg);
+  expect(heroStats.hp).toBe(100); // monster turn skipped
+  updateTurnIndicator();
+  expect(skillCooldowns.stunningStrike).toBe(1);
 });
