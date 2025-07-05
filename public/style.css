@@ -203,6 +203,11 @@
   align-items: flex-end;
   z-index: 2;
 }
+#combat-container .companion-panel {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 10px;
+}
 #combat-container .ground {
   position: absolute;
   bottom: 25%;

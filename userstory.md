@@ -100,3 +100,10 @@ The `companion.js` module exposes `addCompanion`, `removeCompanion`, and
 `getInventory` helpers. On page load it restores saved companions and populates
 the new `#companion-inventory` list so the roster persists across sessions.
 Unit tests cover inventory operations, DOM updates, and persistence.
+
+### User Story 31e Notes
+Companions now appear in the combat interface. When a battle starts the game
+creates image elements for each party member in a new companion panel beside the
+hero. During the hero's attack phase each companion lunges at the enemy one by
+one, dealing their damage with a short delay. The monster's HP updates after
+every strike and the combat message summarizes the total damage dealt.
