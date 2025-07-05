@@ -69,3 +69,16 @@ next to the monster sprite in combat. `updateMonsterInfo` updates the icon sourc
 and tooltip text so it changes whenever a monster's element is modified through
 the new `setMonsterElement` helper. Tests ensure the icon image and title update
 correctly.
+
+### User Story 29: New Healing and Crowd-Control Skills
+Add foundational abilities beyond Fireball, Double Shot, and Shield Bash.
+- **Heal**: Mage skill that costs 10 MP and restores 25 HP to a chosen party member.
+- **Stunning Strike**: Knight skill that deals light damage and has a 30% chance to stun for one turn with a 2-turn cooldown.
+- Skills appear only for the relevant job, consume MP, and track cooldown like existing actions.
+- Unit tests verify MP deduction, cooldown behavior, HP recovery, and stun chance.
+
+#### User Story 29 Notes
+- Buttons are disabled when the hero lacks enough MP.
+- Cooldown counters decrement after the enemy phase, matching current skill logic.
+- The combat UI shows each new skill with remaining cooldown.
+- The test suite covers both abilities, ensuring correct visibility and effect.
