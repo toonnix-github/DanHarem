@@ -6,7 +6,7 @@
   <title>Dungeon Harem Prototype</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
+<body class="app-body">
   <div id="hero-hud"></div>
   <div id="equipment-container">
     <div>Left Hand: <span id="left-hand-slot" class="weapon-slot">Empty</span></div>
@@ -15,9 +15,9 @@
   <div id="registration-container">
     <form id="registration-form">
       <div id="error-message"></div>
-      <input type="text" id="username" placeholder="Username" required />
-      <input type="email" id="email" placeholder="Email" required />
-      <input type="password" id="password" placeholder="Password" required />
+      <input type="text" id="username" class="form-input" placeholder="Username" required />
+      <input type="email" id="email" class="form-input" placeholder="Email" required />
+      <input type="password" id="password" class="form-input" placeholder="Password" required />
       <button type="submit">Register</button>
     </form>
   </div>
@@ -27,24 +27,24 @@
       <div id="selected-clan-message"></div>
       <div id="clan-list">
       <div class="clan-option" data-clan="ARES">
-        <h3>ARES</h3>
-        <p>+10% physical attack, bonus damage on critical hits, increased rage meter build-up</p>
+        <h3 class="option-title">ARES</h3>
+        <p class="option-desc">+10% physical attack, bonus damage on critical hits, increased rage meter build-up</p>
       </div>
       <div class="clan-option" data-clan="ATHENA">
-        <h3>ATHENA</h3>
-        <p>+15% defense, reduced skill cooldowns, chance to counterattack when defending</p>
+        <h3 class="option-title">ATHENA</h3>
+        <p class="option-desc">+15% defense, reduced skill cooldowns, chance to counterattack when defending</p>
       </div>
       <div class="clan-option" data-clan="APOLLO">
-        <h3>APOLLO</h3>
-        <p>+10% magic attack, faster mana regeneration, more effective healing spells</p>
+        <h3 class="option-title">APOLLO</h3>
+        <p class="option-desc">+10% magic attack, faster mana regeneration, more effective healing spells</p>
       </div>
       <div class="clan-option" data-clan="POSEIDON">
-        <h3>POSEIDON</h3>
-        <p>+10% stamina/endurance, chance to reduce elemental damage, faster movement in water/dungeons</p>
+        <h3 class="option-title">POSEIDON</h3>
+        <p class="option-desc">+10% stamina/endurance, chance to reduce elemental damage, faster movement in water/dungeons</p>
       </div>
       <div class="clan-option" data-clan="HEPHAESTUS">
-        <h3>HEPHAESTUS</h3>
-        <p>+10% fire resistance, increased weapon durability, bonus crafting/gem socket chances</p>
+        <h3 class="option-title">HEPHAESTUS</h3>
+        <p class="option-desc">+10% fire resistance, increased weapon durability, bonus crafting/gem socket chances</p>
       </div>
     </div>
   </div>
@@ -54,16 +54,16 @@
     <div id="selected-job-message"></div>
     <div id="job-list">
       <div class="job-option" data-job="Knight">
-        <h3>Knight</h3>
-        <p>Balanced melee fighter with high defense</p>
+        <h3 class="option-title">Knight</h3>
+        <p class="option-desc">Balanced melee fighter with high defense</p>
       </div>
       <div class="job-option" data-job="Ranger">
-        <h3>Ranger</h3>
-        <p>Agile ranged attacker with stealth skills</p>
+        <h3 class="option-title">Ranger</h3>
+        <p class="option-desc">Agile ranged attacker with stealth skills</p>
       </div>
       <div class="job-option" data-job="Mage">
-        <h3>Mage</h3>
-        <p>Master of elemental spells and magic damage</p>
+        <h3 class="option-title">Mage</h3>
+        <p class="option-desc">Master of elemental spells and magic damage</p>
       </div>
     </div>
     <div id="job-warning" style="color:red;"></div>
@@ -74,11 +74,11 @@
       <div id="turn-banner"></div>
       <div class="battle-panel">
         <div class="combatant">
-          <img id="hero-img" src="./assets/character%20and%20tileset/Dungeon_Character.png" />
+          <img id="hero-img" class="combatant-img" src="./assets/character%20and%20tileset/Dungeon_Character.png" />
           <div id="hero-stats" class="hp-bar"><div id="hero-hp-fill" class="hp-fill"></div></div>
         </div>
         <div class="combatant">
-          <img id="monster-img" src="./assets/Enemy_Animations_Set/enemies-skeleton1_idle.png" />
+          <img id="monster-img" class="combatant-img" src="./assets/Enemy_Animations_Set/enemies-skeleton1_idle.png" />
           <img id="monster-element-icon" class="element-icon" alt="element" />
           <div id="monster-stats" class="hp-bar"><div id="monster-hp-fill" class="hp-fill"></div></div>
         </div>
@@ -86,11 +86,11 @@
       <div id="monster-info"></div>
       <div class="ground"></div>
       <div id="combat-controls">
-        <button id="attack-btn">Attack</button>
-        <button id="double-shot-btn">Double Shot</button>
-        <button id="shield-bash-btn">Shield Bash</button>
-        <button id="fireball-btn">Fireball</button>
-        <button id="defend-btn">Defend</button>
+        <button id="attack-btn" class="control-button">Attack</button>
+        <button id="double-shot-btn" class="control-button">Double Shot</button>
+        <button id="shield-bash-btn" class="control-button">Shield Bash</button>
+        <button id="fireball-btn" class="control-button">Fireball</button>
+        <button id="defend-btn" class="control-button">Defend</button>
         <div id="turn-indicator"></div>
       </div>
       <div id="combat-message"></div>
@@ -101,9 +101,9 @@
     </div>
     <div id="attribute-container">
       <div>Points left: <span id="points-remaining">0</span></div>
-      <button id="str-plus">STR +</button>
-      <button id="spd-plus">SPD +</button>
-      <button id="mag-plus">MAG +</button>
+      <button id="str-plus" class="attribute-button">STR +</button>
+      <button id="spd-plus" class="attribute-button">SPD +</button>
+      <button id="mag-plus" class="attribute-button">MAG +</button>
     </div>
     <!-- Load Phaser from CDN so deployments don't need local node_modules -->
     <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
