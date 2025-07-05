@@ -1,7 +1,7 @@
 const tileSize = 32;
 const mapData = [
-  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-  [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
   [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
   [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
   [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
@@ -31,17 +31,22 @@ const mapData = [
   [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 ];
+const townMapData = mapData.map(r => r.slice());
+townMapData[townMapData.length-1][1] = 1;
+townMapData[townMapData.length-2][1] = 1;
+const DUNGEON_DOOR = { x: 1, y: 0 };
+const TOWN_DOOR = { x: 1, y: townMapData.length - 1 };
+const TOWN_ENTRY = { x: 1, y: townMapData.length - 2 };
 
+const DUNGEON_ENTRY = { x: DUNGEON_DOOR.x, y: DUNGEON_DOOR.y + 1 };
 const config = {
   type: Phaser.AUTO,
   width: tileSize * mapData[0].length,
   height: tileSize * mapData.length,
-  backgroundColor: '#1d212d',
-  scene: {
-    preload,
-    create,
-    update
-  }
+  scene: [
+    { key: "DungeonScene", preload, create, update },
+    { key: "TownScene", preload: townPreload, create: townCreate, update: townUpdate }
+  ]
 };
 
 let hero;
@@ -935,7 +940,78 @@ function update() {
       enterBattle(m);
     }
   });
+  if (heroTileX === DUNGEON_DOOR.x && heroTileY === DUNGEON_DOOR.y) {
+    this.scene.start("TownScene", { x: TOWN_ENTRY.x * tileSize + tileSize / 2, y: TOWN_ENTRY.y * tileSize + tileSize / 2 });
+    return;
+  }
 }
+function townPreload() {
+  preload.call(this);
+}
+
+function townCreate(data = {}) {
+  const graphics = this.add.graphics();
+  graphics.fillStyle(0x444444, 1);
+  townMapData.forEach((row, y) => {
+    row.forEach((cell, x) => {
+      const color = cell === 1 ? 0x888888 : 0x222222;
+      graphics.fillStyle(color, 1);
+      graphics.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+    });
+  });
+  const spawnX = data.x !== undefined ? data.x : TOWN_ENTRY.x * tileSize + tileSize / 2;
+  const spawnY = data.y !== undefined ? data.y : TOWN_ENTRY.y * tileSize + tileSize / 2;
+  if (this.add.sprite) {
+    hero = this.add.sprite(spawnX, spawnY, "heroSheet", 0);
+    hero.setOrigin(0.5, 0.5);
+    hero.setScale(1);
+  } else {
+    hero = this.add.rectangle(spawnX, spawnY, tileSize, tileSize, 0xff0000);
+  }
+  cursors = this.input.keyboard.createCursorKeys();
+  wasd = this.input.keyboard.addKeys({
+    up: Phaser.Input.Keyboard.KeyCodes.W,
+    down: Phaser.Input.Keyboard.KeyCodes.S,
+    left: Phaser.Input.Keyboard.KeyCodes.A,
+    right: Phaser.Input.Keyboard.KeyCodes.D
+  });
+}
+
+function townUpdate() {
+  if (!hero || !cursors || !wasd) return;
+  const speed = 200;
+  const delta = this.game.loop.delta / 1000;
+  let newX = hero.x;
+  let newY = hero.y;
+  if (cursors.left.isDown || wasd.left.isDown) newX -= speed * delta;
+  if (cursors.right.isDown || wasd.right.isDown) newX += speed * delta;
+  if (cursors.up.isDown || wasd.up.isDown) newY -= speed * delta;
+  if (cursors.down.isDown || wasd.down.isDown) newY += speed * delta;
+  const halfW = hero.width / 2;
+  const halfH = hero.height / 2;
+  const checkTile = (x, y) => {
+    const tx = Math.floor(x / tileSize);
+    const ty = Math.floor(y / tileSize);
+    return townMapData[ty] && townMapData[ty][tx] === 1;
+  };
+  if (checkTile(newX - halfW, hero.y) && checkTile(newX + halfW - 1, hero.y)) {
+    hero.x = newX;
+  }
+  if (checkTile(hero.x, newY - halfH) && checkTile(hero.x, newY + halfH - 1)) {
+    hero.y = newY;
+  }
+  const width = this.sys.game.config.width;
+  const height = this.sys.game.config.height;
+  hero.x = Math.max(halfW, Math.min(width - halfW, hero.x));
+  hero.y = Math.max(halfH, Math.min(height - halfH, hero.y));
+  const heroTileX = Math.floor(hero.x / tileSize);
+  const heroTileY = Math.floor(hero.y / tileSize);
+  if (heroTileX === TOWN_DOOR.x && heroTileY === TOWN_DOOR.y) {
+    this.scene.start("DungeonScene", { x: DUNGEON_ENTRY.x * tileSize + tileSize / 2, y: DUNGEON_ENTRY.y * tileSize + tileSize / 2 });
+    return;
+  }
+}
+
 
 const game = new Phaser.Game(config);
 const canvasEl = document.querySelector('canvas');
@@ -1088,6 +1164,10 @@ if (typeof module !== 'undefined' && module.exports) {
     tileSize,
     mapData,
     preload,
+    townMapData,
+    townPreload,
+    townCreate,
+    townUpdate,
     create,
     update,
     getHero: () => hero,
