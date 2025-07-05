@@ -84,4 +84,4 @@ Add foundational abilities beyond Fireball, Double Shot, and Shield Bash.
 - The test suite covers both abilities, ensuring correct visibility and effect.
 
 ### User Story 30 Notes
-The town scene now includes three NPCs: a merchant near the shop, a quest giver in the square, and a wandering townsfolk. Each NPC has a small idle motion and can be interacted with using the **E** key or by clicking them. Interaction opens a dialogue box overlay describing their role. NPCs respawn whenever the player returns to town.
+The town now spawns three NPCs at random locations. Each NPC wanders around the map at its own speed and shows a short text bubble above its head when the hero approaches. Players can still press **E** or click an NPC to bring up a larger dialogue box. NPCs respawn whenever the player returns to town.

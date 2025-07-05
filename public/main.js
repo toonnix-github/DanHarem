@@ -1001,18 +1001,40 @@ function townCreate(data = {}) {
     this.cameras.main.startFollow(hero, true);
   }
   interactKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
-  const createNPC = (x, y, dialog) => {
-    const s = this.add.sprite(x * tileSize + tileSize / 2, y * tileSize + tileSize / 2, 'heroSheet', 0);
+
+  const randomTownTile = () => {
+    let x, y;
+    do {
+      x = Phaser.Math.Between(1, townMapData[0].length - 2);
+      y = Phaser.Math.Between(1, townMapData.length - 2);
+    } while (townMapData[y][x] !== 1);
+    return { x, y };
+  };
+
+  const createNPC = (dialog) => {
+    const pos = randomTownTile();
+    const s = this.add.sprite(pos.x * tileSize + tileSize / 2, pos.y * tileSize + tileSize / 2, 'heroSheet', 0);
     s.setOrigin(0.5, 0.5);
-    this.tweens.add({ targets: s, y: s.y - 4, yoyo: true, duration: 1000, repeat: -1 });
+    const text = this.add.text(s.x, s.y - tileSize, dialog, {
+      font: '14px monospace',
+      color: '#ffffff',
+      backgroundColor: 'rgba(0,0,0,0.7)',
+      padding: { x: 4, y: 2 }
+    });
+    text.setOrigin(0.5, 1);
+    text.setVisible(false);
+    const speed = 20 + Math.random() * 30;
+    const dir = new Phaser.Math.Vector2(Math.random() * 2 - 1, Math.random() * 2 - 1).normalize();
+    const npc = { sprite: s, dialog, text, speed, dir, nextChange: Math.random() * 3 + 1 };
     s.setInteractive();
     s.on('pointerdown', () => showDialog(dialog));
-    return { sprite: s, dialog };
+    return npc;
   };
+
   npcs = [
-    createNPC(4, 4, 'Merchant: Take a look at my goods.'),
-    createNPC(7, 6, 'Quest Giver: Adventurers wanted!'),
-    createNPC(9, 3, 'Townsfolk: Hello there.')
+    createNPC('Merchant: Take a look at my goods.'),
+    createNPC('Quest Giver: Adventurers wanted!'),
+    createNPC('Townsfolk: Hello there.')
   ];
   cursors = this.input.keyboard.createCursorKeys();
   wasd = this.input.keyboard.addKeys({
@@ -1052,6 +1074,37 @@ function townUpdate() {
   hero.y = Math.max(halfH, Math.min(height - halfH, hero.y));
   const heroTileX = Math.floor(hero.x / tileSize);
   const heroTileY = Math.floor(hero.y / tileSize);
+  npcs.forEach(npc => {
+    const dist = Phaser.Math.Distance.Between(hero.x, hero.y, npc.sprite.x, npc.sprite.y);
+    npc.text.x = npc.sprite.x;
+    npc.text.y = npc.sprite.y - tileSize;
+    npc.text.setVisible(dist < tileSize * 2);
+
+    npc.nextChange -= delta;
+    if (npc.nextChange <= 0) {
+      npc.dir = new Phaser.Math.Vector2(Math.random() * 2 - 1, Math.random() * 2 - 1).normalize();
+      npc.speed = 20 + Math.random() * 30;
+      npc.nextChange = Math.random() * 3 + 1;
+    }
+    let npcNewX = npc.sprite.x + npc.dir.x * npc.speed * delta;
+    let npcNewY = npc.sprite.y + npc.dir.y * npc.speed * delta;
+    const nHalf = npc.sprite.width / 2;
+    const checkTileNPC = (x, y) => {
+      const tx = Math.floor(x / tileSize);
+      const ty = Math.floor(y / tileSize);
+      return townMapData[ty] && townMapData[ty][tx] === 1;
+    };
+    if (checkTileNPC(npcNewX - nHalf, npc.sprite.y) && checkTileNPC(npcNewX + nHalf - 1, npc.sprite.y)) {
+      npc.sprite.x = npcNewX;
+    } else {
+      npc.dir.x *= -1;
+    }
+    if (checkTileNPC(npc.sprite.x, npcNewY - nHalf) && checkTileNPC(npc.sprite.x, npcNewY + nHalf - 1)) {
+      npc.sprite.y = npcNewY;
+    } else {
+      npc.dir.y *= -1;
+    }
+  });
   if (interactKey && Phaser.Input.Keyboard.JustDown(interactKey)) {
     npcs.forEach(npc => {
       if (Phaser.Math.Distance.Between(hero.x, hero.y, npc.sprite.x, npc.sprite.y) < tileSize) {
