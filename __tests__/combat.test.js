@@ -1,11 +1,11 @@
 /** @jest-environment jsdom */
-let enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters, playerRewards, equipWeapon, heroAttackPower;
+let enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters, playerRewards, equipWeapon, heroAttackPower, companions;
 
 beforeEach(() => {
   jest.resetModules();
   jest.useFakeTimers();
   global.Phaser = { Game: jest.fn() };
-  ({ enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters, playerRewards, equipWeapon, heroAttackPower } = require('../public/main.js'));
+  ({ enterBattle, heroStats, attackAction, defendAction, setMonsters, getMonsters, playerRewards, equipWeapon, heroAttackPower, companions } = require('../public/main.js'));
   document.body.innerHTML = `
     <div id="combat-container" style="display:none;">
       <div class="battle-panel">
@@ -13,6 +13,7 @@ beforeEach(() => {
           <img id="hero-img" />
           <div id="hero-stats" class="hp-bar"><div id="hero-hp-fill" class="hp-fill"></div></div>
         </div>
+        <div id="companion-container" class="companion-panel"></div>
         <div class="combatant">
           <img id="monster-img" />
           <div id="monster-stats" class="hp-bar"><div id="monster-hp-fill" class="hp-fill"></div></div>
@@ -104,7 +105,9 @@ test('monster removed after defeat', async () => {
   const monster = { stats: { hp: 10, atk: 0 }, sprite: { destroy: jest.fn() } };
   setMonsters([monster]);
   enterBattle(monster);
-  await attackAction();
+  const promise = attackAction();
+  jest.advanceTimersByTime(1000);
+  await promise;
   jest.advanceTimersByTime(3000);
   await flushTimers();
   expect(getMonsters().length).toBe(0);
@@ -115,7 +118,9 @@ test('rewards granted after defeating monster', async () => {
   const monster = { stats: { hp: 10, atk: 0 }, sprite: { destroy: jest.fn() } };
   setMonsters([monster]);
   enterBattle(monster);
-  await attackAction();
+  const promise = attackAction();
+  jest.advanceTimersByTime(1000);
+  await promise;
   expect(playerRewards.exp).toBeGreaterThan(0);
   expect(playerRewards.gold).toBeGreaterThan(0);
   expect(document.getElementById('reward-container').style.display).toBe('block');
@@ -135,6 +140,23 @@ test('monster action delayed with six 1 second steps', async () => {
   await flushTimers();
   const oneSecondCalls = spy.mock.calls.filter(c => c[1] === 1000);
   expect(oneSecondCalls.length).toBe(6);
+  await promise;
+  spy.mockRestore();
+});
+
+test('companions render and attack sequentially', async () => {
+  const monster = { stats: { hp: 50, atk: 0, maxHp: 50 } };
+  heroStats.hp = 100;
+  companions.push({ name: 'Ally1', stats: { atk: 3 } });
+  companions.push({ name: 'Ally2', stats: { atk: 4 } });
+  enterBattle(monster);
+  expect(document.getElementById('companion-img-0')).not.toBeNull();
+  expect(document.getElementById('companion-img-1')).not.toBeNull();
+  const spy = jest.spyOn(global, 'setTimeout');
+  const promise = attackAction();
+  await flushTimers();
+  const delayCalls = spy.mock.calls.filter(c => c[1] === 300);
+  expect(delayCalls.length).toBeGreaterThanOrEqual(companions.length + 1);
   await promise;
   spy.mockRestore();
 });

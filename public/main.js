@@ -396,6 +396,8 @@ function endBattle(result) {
   }
   const icon = document.getElementById('monster-element-icon');
   if (icon) icon.style.display = 'none';
+  const compContainer = document.getElementById('companion-container');
+  if (compContainer) compContainer.innerHTML = '';
   currentMonster = null;
   turn = 'player';
   updateTurnIndicator();
@@ -476,6 +478,22 @@ function spawnCompanionSprites(scene) {
   });
 }
 
+function renderCompanionCombatants() {
+  const container = document.getElementById('companion-container');
+  if (!container) return;
+  container.innerHTML = '';
+  companions.forEach((comp, i) => {
+    const div = document.createElement('div');
+    div.className = 'combatant';
+    const img = document.createElement('img');
+    img.id = `companion-img-${i}`;
+    img.className = 'combatant-img';
+    img.src = './assets/character%20and%20tileset/Dungeon_Character.png';
+    div.appendChild(img);
+    container.appendChild(div);
+  });
+}
+
 function updateCompanionSprites(delta) {
   companionSprites.forEach((c, i) => {
     const targetX = hero.x + (i + 1) * tileSize;
@@ -532,6 +550,7 @@ function enterBattle(monster) {
   if (heroEl) heroEl.className = 'hp-bar';
   if (monsterEl) monsterEl.className = 'hp-bar';
   updateHPBars();
+  renderCompanionCombatants();
   updateMonsterInfo();
   combat.style.display = 'block';
   const msgEl = document.getElementById('combat-message');
@@ -746,12 +765,17 @@ async function attackAction() {
   damage = applyResistance(currentMonster, damage, 'Physical');
   animateAttack('hero-img', 'monster-img', damage, crit);
   currentMonster.stats.hp -= damage;
+  setCombatMessage(crit ? 'Hero critically hits!' : 'Hero attacks!');
+  await delay(300);
   let compTotal = 0;
-  companions.forEach(c => {
+  for (let i = 0; i < companions.length; i++) {
+    const c = companions[i];
     compTotal += c.stats.atk;
-    showDamage('monster-img', c.stats.atk);
-  });
-  currentMonster.stats.hp -= compTotal;
+    animateAttack(`companion-img-${i}`, 'monster-img', c.stats.atk, false);
+    currentMonster.stats.hp -= c.stats.atk;
+    setCombatMessage(`${c.name} attacks!`);
+    await delay(300);
+  }
   if (heroEquipment.left) degradeWeapon(heroEquipment.left);
   if (heroEquipment.right && heroEquipment.right !== heroEquipment.left) {
     degradeWeapon(heroEquipment.right);
