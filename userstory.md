@@ -18,6 +18,7 @@
 - User Story 22f: Weapon Equip Logic for One-Handed and Two-Handed Weapons.
 - User Story 22g: Add Weapon Attributes and Integrate Them into Combat Calculations.
 - User Story 22b: Weapon Durability Tracking with Status Visualization.
+- User Story 31a: Companion Data Model and Inventory.
 
 ### User Story 22b Notes
 The durability system attaches a `durability` value to each weapon object. Durability
@@ -89,3 +90,13 @@ The town now spawns three NPCs at random locations. Each NPC wanders around the 
 ### User Story 31b Notes
 Implemented a basic companion shop. Monsters now drop 1 gold along with XP. The HUD shows current gold and the shop lists available recruits with their stats and price (currently 1). Buying a companion deducts gold, adds them to the inventory and shows a confirmation or an insufficient funds warning. Unit tests cover purchase validation, currency deduction and the gold reward from combat.
 The shop now appears as a dedicated building in town with a clear banner. Players can click the building or press **E** nearby to open the recruitment menu.
+
+### User Story 31a Notes
+Companion data uses a simple schema:
+`{ id, name, job, level, stats: { hp, attack, defense, speed } }`.
+All owned companions are stored in an array saved to `localStorage` under
+`companionInventory` with an incremental `companionIdCounter` for unique IDs.
+The `companion.js` module exposes `addCompanion`, `removeCompanion`, and
+`getInventory` helpers. On page load it restores saved companions and populates
+the new `#companion-inventory` list so the roster persists across sessions.
+Unit tests cover inventory operations, DOM updates, and persistence.

@@ -12,6 +12,10 @@
     <div>Left Hand: <span id="left-hand-slot" class="weapon-slot">Empty</span></div>
     <div>Right Hand: <span id="right-hand-slot" class="weapon-slot">Empty</span></div>
   </div>
+  <div id="companion-inventory-container">
+    <h2>Companions</h2>
+    <ul id="companion-inventory"></ul>
+  </div>
   <div id="registration-container">
     <form id="registration-form">
       <div id="error-message"></div>
@@ -116,8 +120,9 @@
     </div>
     <div id="dialogue-box"></div>
     <!-- Load Phaser from CDN so deployments don't need local node_modules -->
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
   <script src="validation.js"></script>
   <script type="module" src="main.js"></script>
+  <script type="module" src="companion.js"></script>
 </body>
 </html>
