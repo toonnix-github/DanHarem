@@ -95,6 +95,11 @@ const defaultWeapons = {
   Ranger: { name: 'Bow', type: 'bow', twoHanded: true, baseDamage: 4 },
   Mage: { name: 'Staff', type: 'staff', twoHanded: true, baseDamage: 3 }
 };
+const companionCatalog = [
+  { name: 'Acolyte', job: 'Mage', stats: { hp: 20, atk: 3 }, price: 1 },
+  { name: 'Squire', job: 'Knight', stats: { hp: 25, atk: 4 }, price: 1 }
+];
+let companions = [];
 let playerRewards = { exp: 0, gold: 0, items: [] };
 let skillCooldowns = { doubleShot: 0, shieldBash: 0, stunningStrike: 0 };
 let cursors;
@@ -186,7 +191,8 @@ function updateHeroHUD() {
     `<div>${name} - Lv ${heroStats.level}</div>` +
     `<div>HP: ${heroStats.hp}/${heroStats.maxHp}</div>` +
     `<div>MP: ${heroStats.mp}/${heroStats.maxMp}</div>` +
-    `<div>STR: ${heroStats.str} SPD: ${heroStats.spd} MAG: ${heroStats.mag}</div>`;
+    `<div>STR: ${heroStats.str} SPD: ${heroStats.spd} MAG: ${heroStats.mag}</div>` +
+    `<div>Gold: ${playerRewards.gold}</div>`;
 }
 
 function updateMonsterInfo() {
@@ -254,6 +260,44 @@ function showDialog(text) {
 function hideDialog() {
   const box = document.getElementById('dialogue-box');
   if (box) box.style.display = 'none';
+}
+
+function showCompanionShop() {
+  const container = document.getElementById('companion-shop');
+  const list = document.getElementById('shop-list');
+  const currency = document.getElementById('currency-display');
+  if (!container || !list || !currency) return;
+  list.innerHTML = '';
+  companionCatalog.forEach((c, i) => {
+    const item = document.createElement('div');
+    item.className = 'shop-item';
+    item.innerHTML = `<div>${c.name} - ${c.job}</div>` +
+      `<div>HP ${c.stats.hp} ATK ${c.stats.atk}</div>` +
+      `<div>Price: ${c.price}</div>` +
+      `<button data-idx="${i}">Buy</button>`;
+    list.appendChild(item);
+    const btn = item.querySelector('button');
+    btn.addEventListener('click', () => purchaseCompanion(i));
+  });
+  currency.textContent = `Gold: ${playerRewards.gold}`;
+  container.style.display = 'block';
+}
+
+function purchaseCompanion(index) {
+  const comp = companionCatalog[index];
+  const message = document.getElementById('shop-message');
+  const currency = document.getElementById('currency-display');
+  if (!comp || !message || !currency) return false;
+  if (playerRewards.gold < comp.price) {
+    message.textContent = 'Insufficient funds';
+    return false;
+  }
+  playerRewards.gold -= comp.price;
+  companions.push(comp);
+  message.textContent = `${comp.name} recruited!`;
+  currency.textContent = `Gold: ${playerRewards.gold}`;
+  updateHeroHUD();
+  return true;
 }
 
 function equipWeapon(slot, weapon) {
@@ -466,12 +510,13 @@ function checkLevelUp() {
 }
 
 function handleRewards() {
-  const reward = { exp: 10 };
+  const reward = { exp: 10, gold: 1 };
   playerRewards.exp += reward.exp;
+  playerRewards.gold += reward.gold;
   heroStats.exp += reward.exp;
   const msgEl = document.getElementById('reward-message');
   const container = document.getElementById('reward-container');
-  if (msgEl) msgEl.textContent = `Earned ${reward.exp} XP`;
+  if (msgEl) msgEl.textContent = `Earned ${reward.exp} XP and ${reward.gold} gold`;
   checkLevelUp();
   updateHeroHUD();
   updateAttributeUI();
@@ -1323,6 +1368,10 @@ if (typeof module !== 'undefined' && module.exports) {
     ELEMENT_ICONS,
     showDialog,
     hideDialog,
+    showCompanionShop,
+    purchaseCompanion,
+    companions,
+    companionCatalog,
     npcs
   };
 }

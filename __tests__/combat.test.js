@@ -117,8 +117,11 @@ test('rewards granted after defeating monster', async () => {
   enterBattle(monster);
   await attackAction();
   expect(playerRewards.exp).toBeGreaterThan(0);
+  expect(playerRewards.gold).toBeGreaterThan(0);
   expect(document.getElementById('reward-container').style.display).toBe('block');
-  expect(document.getElementById('reward-message').textContent).toContain('XP');
+  const rewardText = document.getElementById('reward-message').textContent;
+  expect(rewardText).toContain('XP');
+  expect(rewardText).toContain('gold');
   jest.advanceTimersByTime(3000);
   await flushTimers();
   expect(document.getElementById('reward-container').style.display).toBe('none');
