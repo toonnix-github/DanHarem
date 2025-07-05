@@ -283,6 +283,11 @@ function showCompanionShop() {
   container.style.display = 'block';
 }
 
+function hideCompanionShop() {
+  const container = document.getElementById('companion-shop');
+  if (container) container.style.display = 'none';
+}
+
 function purchaseCompanion(index) {
   const comp = companionCatalog[index];
   const message = document.getElementById('shop-message');
@@ -1056,7 +1061,7 @@ function townCreate(data = {}) {
     return { x, y };
   };
 
-  const createNPC = (dialog) => {
+  const createNPC = (dialog, interactCallback) => {
     const pos = randomTownTile();
     const s = this.add.sprite(pos.x * tileSize + tileSize / 2, pos.y * tileSize + tileSize / 2, 'heroSheet', 0);
     s.setOrigin(0.5, 0.5);
@@ -1070,14 +1075,17 @@ function townCreate(data = {}) {
     text.setVisible(false);
     const speed = 20 + Math.random() * 30;
     const dir = new Phaser.Math.Vector2(Math.random() * 2 - 1, Math.random() * 2 - 1).normalize();
-    const npc = { sprite: s, dialog, text, speed, dir, nextChange: Math.random() * 3 + 1 };
+    const npc = { sprite: s, dialog, text, speed, dir, nextChange: Math.random() * 3 + 1, interactCallback };
     s.setInteractive();
-    s.on('pointerdown', () => showDialog(dialog));
+    s.on('pointerdown', () => {
+      showDialog(dialog);
+      if (interactCallback) interactCallback();
+    });
     return npc;
   };
 
   npcs = [
-    createNPC('Merchant: Take a look at my goods.'),
+    createNPC('Merchant: Take a look at my goods.', showCompanionShop),
     createNPC('Quest Giver: Adventurers wanted!'),
     createNPC('Townsfolk: Hello there.')
   ];
@@ -1154,6 +1162,7 @@ function townUpdate() {
     npcs.forEach(npc => {
       if (Phaser.Math.Distance.Between(hero.x, hero.y, npc.sprite.x, npc.sprite.y) < tileSize) {
         showDialog(npc.dialog);
+        if (npc.interactCallback) npc.interactCallback();
       }
     });
   }
@@ -1307,6 +1316,11 @@ document.addEventListener('DOMContentLoaded', () => {
   updateAttributeUI();
   updateEquipmentUI();
   updateSkillButtons();
+  const closeBtn = document.getElementById('close-shop-btn');
+  if (closeBtn) closeBtn.addEventListener('click', hideCompanionShop);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') hideCompanionShop();
+  });
   const dialogBox = document.getElementById('dialogue-box');
   if (dialogBox) dialogBox.addEventListener('click', hideDialog);
 });
@@ -1369,6 +1383,7 @@ if (typeof module !== 'undefined' && module.exports) {
     showDialog,
     hideDialog,
     showCompanionShop,
+    hideCompanionShop,
     purchaseCompanion,
     companions,
     companionCatalog,
