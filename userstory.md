@@ -82,3 +82,6 @@ Add foundational abilities beyond Fireball, Double Shot, and Shield Bash.
 - Cooldown counters decrement after the enemy phase, matching current skill logic.
 - The combat UI shows each new skill with remaining cooldown.
 - The test suite covers both abilities, ensuring correct visibility and effect.
+
+### User Story 30 Notes
+The town now spawns three NPCs at random locations. Each NPC wanders around the map at its own speed and shows a short text bubble above its head when the hero approaches. Players can still press **E** or click an NPC to bring up a larger dialogue box. NPCs respawn whenever the player returns to town.
