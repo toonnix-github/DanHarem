@@ -765,12 +765,15 @@ async function attackAction() {
   damage = applyResistance(currentMonster, damage, 'Physical');
   animateAttack('hero-img', 'monster-img', damage, crit);
   currentMonster.stats.hp -= damage;
+  setCombatMessage(crit ? 'Hero critically hits!' : 'Hero attacks!');
+  await delay(300);
   let compTotal = 0;
   for (let i = 0; i < companions.length; i++) {
     const c = companions[i];
     compTotal += c.stats.atk;
     animateAttack(`companion-img-${i}`, 'monster-img', c.stats.atk, false);
     currentMonster.stats.hp -= c.stats.atk;
+    setCombatMessage(`${c.name} attacks!`);
     await delay(300);
   }
   if (heroEquipment.left) degradeWeapon(heroEquipment.left);

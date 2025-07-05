@@ -105,7 +105,9 @@ test('monster removed after defeat', async () => {
   const monster = { stats: { hp: 10, atk: 0 }, sprite: { destroy: jest.fn() } };
   setMonsters([monster]);
   enterBattle(monster);
-  await attackAction();
+  const promise = attackAction();
+  jest.advanceTimersByTime(1000);
+  await promise;
   jest.advanceTimersByTime(3000);
   await flushTimers();
   expect(getMonsters().length).toBe(0);
@@ -116,7 +118,9 @@ test('rewards granted after defeating monster', async () => {
   const monster = { stats: { hp: 10, atk: 0 }, sprite: { destroy: jest.fn() } };
   setMonsters([monster]);
   enterBattle(monster);
-  await attackAction();
+  const promise = attackAction();
+  jest.advanceTimersByTime(1000);
+  await promise;
   expect(playerRewards.exp).toBeGreaterThan(0);
   expect(playerRewards.gold).toBeGreaterThan(0);
   expect(document.getElementById('reward-container').style.display).toBe('block');
@@ -152,7 +156,7 @@ test('companions render and attack sequentially', async () => {
   const promise = attackAction();
   await flushTimers();
   const delayCalls = spy.mock.calls.filter(c => c[1] === 300);
-  expect(delayCalls.length).toBeGreaterThanOrEqual(2);
+  expect(delayCalls.length).toBeGreaterThanOrEqual(companions.length + 1);
   await promise;
   spy.mockRestore();
 });
