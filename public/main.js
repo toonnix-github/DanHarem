@@ -42,6 +42,10 @@ const TOWN_ENTRY = { x: 1, y: townMapData.length - 2 };
 townMapData[TOWN_DOOR.y][TOWN_DOOR.x] = 1;
 townMapData[TOWN_ENTRY.y][TOWN_ENTRY.x] = 1;
 const SHOP_POS = { x: Math.floor(townMapData[0].length / 2), y: 3 };
+townMapData[SHOP_POS.y][SHOP_POS.x] = 0;
+townMapData[SHOP_POS.y][SHOP_POS.x + 1] = 0;
+townMapData[SHOP_POS.y + 1][SHOP_POS.x] = 0;
+townMapData[SHOP_POS.y + 1][SHOP_POS.x + 1] = 0;
 
 const DUNGEON_ENTRY = { x: DUNGEON_DOOR.x, y: DUNGEON_DOOR.y + 1 };
 const VIEW_WIDTH = tileSize * 20;
@@ -76,6 +80,10 @@ let heroEquipment = { left: null, right: null };
 let npcs = [];
 let shopBuilding;
 let interactKey;
+let shopHint;
+let companionSprites = [];
+let obstacles = [];
+let currentScene = null;
 const DEFAULT_RESISTANCES = { Physical: 0, Fire: 0, Water: 0 };
 const ELEMENT_ICONS = {
   fire:
@@ -301,6 +309,7 @@ function purchaseCompanion(index) {
   }
   playerRewards.gold -= comp.price;
   companions.push(comp);
+  if (currentScene) spawnCompanionSprites(currentScene);
   message.textContent = `${comp.name} recruited!`;
   currency.textContent = `Gold: ${playerRewards.gold}`;
   updateHeroHUD();
@@ -451,6 +460,54 @@ function spawnMonsters(scene) {
     spawn.nextSpawn = 0;
     return spawnMonsterAt(spawn, scene);
   });
+}
+
+function spawnCompanionSprites(scene) {
+  companionSprites.forEach(c => c.sprite.destroy());
+  companionSprites = companions.map((comp, i) => {
+    const sp = scene.add.sprite(
+      hero.x + (i + 1) * tileSize,
+      hero.y,
+      'heroSheet',
+      0
+    );
+    sp.setOrigin(0.5, 0.5);
+    return { sprite: sp, comp };
+  });
+}
+
+function updateCompanionSprites(delta) {
+  companionSprites.forEach((c, i) => {
+    const targetX = hero.x + (i + 1) * tileSize;
+    const targetY = hero.y;
+    const vec = new Phaser.Math.Vector2(targetX - c.sprite.x, targetY - c.sprite.y);
+    if (vec.length() > 2) {
+      vec.normalize();
+      c.sprite.x += vec.x * 150 * delta;
+      c.sprite.y += vec.y * 150 * delta;
+    }
+  });
+}
+
+function isPassable(x, y, halfW, halfH) {
+  const clearStatic = obstacles.every(o => {
+    return (
+      x + halfW <= o.x ||
+      x - halfW >= o.x + o.w ||
+      y + halfH <= o.y ||
+      y - halfH >= o.y + o.h
+    );
+  });
+  const clearNPCs = npcs.every(npc => {
+    const nHalf = npc.sprite.width / 2;
+    return (
+      x + halfW <= npc.sprite.x - nHalf ||
+      x - halfW >= npc.sprite.x + nHalf ||
+      y + halfH <= npc.sprite.y - nHalf ||
+      y - halfH >= npc.sprite.y + nHalf
+    );
+  });
+  return clearStatic && clearNPCs;
 }
 
 function checkRespawns(scene) {
@@ -689,13 +746,21 @@ async function attackAction() {
   damage = applyResistance(currentMonster, damage, 'Physical');
   animateAttack('hero-img', 'monster-img', damage, crit);
   currentMonster.stats.hp -= damage;
+  let compTotal = 0;
+  companions.forEach(c => {
+    compTotal += c.stats.atk;
+    showDamage('monster-img', c.stats.atk);
+  });
+  currentMonster.stats.hp -= compTotal;
   if (heroEquipment.left) degradeWeapon(heroEquipment.left);
   if (heroEquipment.right && heroEquipment.right !== heroEquipment.left) {
     degradeWeapon(heroEquipment.right);
   }
   updateEquipmentUI();
   updateCombatDisplay();
-  let msg = crit ? `Hero critically hits! Monster HP is ${currentMonster.stats.hp}.` : `Hero attacks! Monster HP is ${currentMonster.stats.hp}.`;
+  let msg = crit ? `Hero critically hits!` : `Hero attacks!`;
+  if (companions.length > 0) msg += ` Companions deal ${compTotal} damage.`;
+  msg += ` Monster HP is ${currentMonster.stats.hp}.`;
   setCombatMessage(msg);
   if (currentMonster.stats.hp <= 0) {
     const finalMsg = msg + ' Monster defeated!';
@@ -935,6 +1000,7 @@ function preload() {
 }
 
 function create() {
+  obstacles = [];
   const graphics = this.add.graphics();
   graphics.fillStyle(0x444444, 1);
   mapData.forEach((row, y) => {
@@ -972,6 +1038,8 @@ function create() {
     left: Phaser.Input.Keyboard.KeyCodes.A,
     right: Phaser.Input.Keyboard.KeyCodes.D
   });
+  currentScene = this;
+  spawnCompanionSprites(this);
 }
 
 function update() {
@@ -994,10 +1062,18 @@ function update() {
     return mapData[ty] && mapData[ty][tx] === 1;
   };
 
-  if (checkTile(newX - halfW, hero.y) && checkTile(newX + halfW - 1, hero.y)) {
+  if (
+    checkTile(newX - halfW, hero.y) &&
+    checkTile(newX + halfW - 1, hero.y) &&
+    isPassable(newX, hero.y, halfW, halfH)
+  ) {
     hero.x = newX;
   }
-  if (checkTile(hero.x, newY - halfH) && checkTile(hero.x, newY + halfH - 1)) {
+  if (
+    checkTile(hero.x, newY - halfH) &&
+    checkTile(hero.x, newY + halfH - 1) &&
+    isPassable(hero.x, newY, halfW, halfH)
+  ) {
     hero.y = newY;
   }
   const width = mapData[0].length * tileSize;
@@ -1022,12 +1098,14 @@ function update() {
     this.scene.start("TownScene", { x: TOWN_ENTRY.x * tileSize + tileSize / 2, y: TOWN_ENTRY.y * tileSize + tileSize / 2 });
     return;
   }
+  updateCompanionSprites(delta);
 }
 function townPreload() {
   preload.call(this);
 }
 
 function townCreate(data = {}) {
+  obstacles = [];
   const graphics = this.add.graphics();
   graphics.fillStyle(0x444444, 1);
   townMapData.forEach((row, y) => {
@@ -1066,6 +1144,14 @@ function townCreate(data = {}) {
     backgroundColor: '#000000',
     padding: { x: 4, y: 2 }
   }).setOrigin(0.5, 1);
+  shopHint = this.add.text(shopX, shopY + tileSize, 'Press E or click to open', {
+    font: '14px monospace',
+    color: '#ffffff',
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    padding: { x: 4, y: 2 }
+  }).setOrigin(0.5, 0);
+  shopHint.setVisible(false);
+  obstacles.push({ x: shopX - tileSize, y: shopY - tileSize, w: tileSize * 2, h: tileSize * 2 });
 
   const randomTownTile = () => {
     let x, y;
@@ -1096,6 +1182,7 @@ function townCreate(data = {}) {
       showDialog(dialog);
       if (interactCallback) interactCallback();
     });
+    obstacles.push({ x: s.x - tileSize / 2, y: s.y - tileSize / 2, w: tileSize, h: tileSize });
     return npc;
   };
 
@@ -1111,6 +1198,8 @@ function townCreate(data = {}) {
     left: Phaser.Input.Keyboard.KeyCodes.A,
     right: Phaser.Input.Keyboard.KeyCodes.D
   });
+  currentScene = this;
+  spawnCompanionSprites(this);
 }
 
 function townUpdate() {
@@ -1130,10 +1219,18 @@ function townUpdate() {
     const ty = Math.floor(y / tileSize);
     return townMapData[ty] && townMapData[ty][tx] === 1;
   };
-  if (checkTile(newX - halfW, hero.y) && checkTile(newX + halfW - 1, hero.y)) {
+  if (
+    checkTile(newX - halfW, hero.y) &&
+    checkTile(newX + halfW - 1, hero.y) &&
+    isPassable(newX, hero.y, halfW, halfH)
+  ) {
     hero.x = newX;
   }
-  if (checkTile(hero.x, newY - halfH) && checkTile(hero.x, newY + halfH - 1)) {
+  if (
+    checkTile(hero.x, newY - halfH) &&
+    checkTile(hero.x, newY + halfH - 1) &&
+    isPassable(hero.x, newY, halfW, halfH)
+  ) {
     hero.y = newY;
   }
   const width = townMapData[0].length * tileSize;
@@ -1190,6 +1287,14 @@ function townUpdate() {
     this.scene.start("DungeonScene", { x: DUNGEON_ENTRY.x * tileSize + tileSize / 2, y: DUNGEON_ENTRY.y * tileSize + tileSize / 2 });
     return;
   }
+  const shopX = SHOP_POS.x * tileSize + tileSize;
+  const shopY = SHOP_POS.y * tileSize + tileSize;
+  if (Phaser.Math.Distance.Between(hero.x, hero.y, shopX, shopY) < tileSize * 2) {
+    if (shopHint) shopHint.setVisible(true);
+  } else {
+    if (shopHint) shopHint.setVisible(false);
+  }
+  updateCompanionSprites(delta);
 }
 
 
