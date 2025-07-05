@@ -1,7 +1,7 @@
 const tileSize = 32;
 const mapData = [
   [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-  [0,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
+  [0,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1],
   [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
   [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
   [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
@@ -31,12 +31,16 @@ const mapData = [
   [0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0],
   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 ];
-const townMapData = mapData.map(r => r.slice());
-townMapData[townMapData.length-1][1] = 1;
-townMapData[townMapData.length-2][1] = 1;
+const townMapData = Array.from({ length: mapData.length }, (_, y) =>
+  Array.from({ length: mapData[0].length }, (_, x) =>
+    y === 0 || y === mapData.length - 1 || x === 0 || x === mapData[0].length - 1 ? 0 : 1
+  )
+);
 const DUNGEON_DOOR = { x: 1, y: 0 };
 const TOWN_DOOR = { x: 1, y: townMapData.length - 1 };
 const TOWN_ENTRY = { x: 1, y: townMapData.length - 2 };
+townMapData[TOWN_DOOR.y][TOWN_DOOR.x] = 1;
+townMapData[TOWN_ENTRY.y][TOWN_ENTRY.x] = 1;
 
 const DUNGEON_ENTRY = { x: DUNGEON_DOOR.x, y: DUNGEON_DOOR.y + 1 };
 const config = {
