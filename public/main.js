@@ -171,6 +171,7 @@ function updateMonsterInfo() {
     const el = (currentMonster.element || 'Physical').toLowerCase();
     icon.src = ELEMENT_ICONS[el] || '';
     icon.title = currentMonster.element || 'Unknown';
+    icon.style.display = 'block';
   }
 }
 
@@ -290,6 +291,8 @@ function endBattle(result) {
     monsters = monsters.filter(m => m !== currentMonster);
     scheduleRespawn(currentMonster);
   }
+  const icon = document.getElementById('monster-element-icon');
+  if (icon) icon.style.display = 'none';
   currentMonster = null;
   turn = 'player';
   updateTurnIndicator();
@@ -603,7 +606,9 @@ async function attackAction() {
     const finalMsg = msg + ' Monster defeated!';
     setCombatMessage(finalMsg);
     const mImg = document.getElementById('monster-img');
+    const icon = document.getElementById('monster-element-icon');
     if (mImg) mImg.classList.add('defeated');
+    if (icon) icon.style.display = 'none';
     handleRewards().then(() => {
       endBattle(finalMsg);
       if (mImg) mImg.classList.remove('defeated');
@@ -634,7 +639,9 @@ async function castFireballAction() {
     const finalMsg = msg + ' Monster defeated!';
     setCombatMessage(finalMsg);
     const mImg = document.getElementById('monster-img');
+    const icon = document.getElementById('monster-element-icon');
     if (mImg) mImg.classList.add('defeated');
+    if (icon) icon.style.display = 'none';
     handleRewards().then(() => {
       endBattle(finalMsg);
       if (mImg) mImg.classList.remove('defeated');
@@ -680,7 +687,9 @@ async function doubleShotAction() {
     const finalMsg = 'Hero uses Double Shot! Monster defeated!';
     setCombatMessage(finalMsg);
     const mImg = document.getElementById('monster-img');
+    const icon = document.getElementById('monster-element-icon');
     if (mImg) mImg.classList.add('defeated');
+    if (icon) icon.style.display = 'none';
     await handleRewards();
     endBattle(finalMsg);
     if (mImg) mImg.classList.remove('defeated');
@@ -724,7 +733,9 @@ async function shieldBashAction() {
     const finalMsg = 'Hero uses Shield Bash! Monster defeated!';
     setCombatMessage(finalMsg);
     const mImg = document.getElementById('monster-img');
+    const icon = document.getElementById('monster-element-icon');
     if (mImg) mImg.classList.add('defeated');
+    if (icon) icon.style.display = 'none';
     await handleRewards();
     endBattle(finalMsg);
     if (mImg) mImg.classList.remove('defeated');
