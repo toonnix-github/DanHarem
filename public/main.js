@@ -43,10 +43,12 @@ townMapData[TOWN_DOOR.y][TOWN_DOOR.x] = 1;
 townMapData[TOWN_ENTRY.y][TOWN_ENTRY.x] = 1;
 
 const DUNGEON_ENTRY = { x: DUNGEON_DOOR.x, y: DUNGEON_DOOR.y + 1 };
+const VIEW_WIDTH = tileSize * 20;
+const VIEW_HEIGHT = tileSize * 15;
 const config = {
   type: Phaser.AUTO,
-  width: tileSize * mapData[0].length,
-  height: tileSize * mapData.length,
+  width: VIEW_WIDTH,
+  height: VIEW_HEIGHT,
   scene: [
     { key: "DungeonScene", preload, create, update },
     { key: "TownScene", preload: townPreload, create: townCreate, update: townUpdate }
@@ -890,6 +892,12 @@ function create() {
   } else {
     hero = this.add.rectangle(tileSize + tileSize / 2, tileSize + tileSize / 2, tileSize, tileSize, 0xff0000);
   }
+  if (this.cameras && this.cameras.main) {
+    const width = mapData[0].length * tileSize;
+    const height = mapData.length * tileSize;
+    this.cameras.main.setBounds(0, 0, width, height);
+    this.cameras.main.startFollow(hero, true);
+  }
   spawnMonsters(this);
   cursors = this.input.keyboard.createCursorKeys();
   wasd = this.input.keyboard.addKeys({
@@ -926,8 +934,8 @@ function update() {
   if (checkTile(hero.x, newY - halfH) && checkTile(hero.x, newY + halfH - 1)) {
     hero.y = newY;
   }
-  const width = this.sys.game.config.width;
-  const height = this.sys.game.config.height;
+  const width = mapData[0].length * tileSize;
+  const height = mapData.length * tileSize;
   hero.x = Math.max(halfW, Math.min(width - halfW, hero.x));
   hero.y = Math.max(halfH, Math.min(height - halfH, hero.y));
 
@@ -972,6 +980,12 @@ function townCreate(data = {}) {
   } else {
     hero = this.add.rectangle(spawnX, spawnY, tileSize, tileSize, 0xff0000);
   }
+  if (this.cameras && this.cameras.main) {
+    const width = townMapData[0].length * tileSize;
+    const height = townMapData.length * tileSize;
+    this.cameras.main.setBounds(0, 0, width, height);
+    this.cameras.main.startFollow(hero, true);
+  }
   cursors = this.input.keyboard.createCursorKeys();
   wasd = this.input.keyboard.addKeys({
     up: Phaser.Input.Keyboard.KeyCodes.W,
@@ -1004,8 +1018,8 @@ function townUpdate() {
   if (checkTile(hero.x, newY - halfH) && checkTile(hero.x, newY + halfH - 1)) {
     hero.y = newY;
   }
-  const width = this.sys.game.config.width;
-  const height = this.sys.game.config.height;
+  const width = townMapData[0].length * tileSize;
+  const height = townMapData.length * tileSize;
   hero.x = Math.max(halfW, Math.min(width - halfW, hero.x));
   hero.y = Math.max(halfH, Math.min(height - halfH, hero.y));
   const heroTileX = Math.floor(hero.x / tileSize);
