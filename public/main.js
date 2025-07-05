@@ -72,6 +72,8 @@ let heroStats = {
   critMultiplier: 1.5,
 };
 let heroEquipment = { left: null, right: null };
+let npcs = [];
+let interactKey;
 const DEFAULT_RESISTANCES = { Physical: 0, Fire: 0, Water: 0 };
 const ELEMENT_ICONS = {
   fire:
@@ -240,6 +242,18 @@ function allocateAttribute(stat) {
     updateHeroHUD();
     updateAttributeUI();
   }
+}
+
+function showDialog(text) {
+  const box = document.getElementById('dialogue-box');
+  if (!box) return;
+  box.textContent = text;
+  box.style.display = 'block';
+}
+
+function hideDialog() {
+  const box = document.getElementById('dialogue-box');
+  if (box) box.style.display = 'none';
 }
 
 function equipWeapon(slot, weapon) {
@@ -986,6 +1000,20 @@ function townCreate(data = {}) {
     this.cameras.main.setBounds(0, 0, width, height);
     this.cameras.main.startFollow(hero, true);
   }
+  interactKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+  const createNPC = (x, y, dialog) => {
+    const s = this.add.sprite(x * tileSize + tileSize / 2, y * tileSize + tileSize / 2, 'heroSheet', 0);
+    s.setOrigin(0.5, 0.5);
+    this.tweens.add({ targets: s, y: s.y - 4, yoyo: true, duration: 1000, repeat: -1 });
+    s.setInteractive();
+    s.on('pointerdown', () => showDialog(dialog));
+    return { sprite: s, dialog };
+  };
+  npcs = [
+    createNPC(4, 4, 'Merchant: Take a look at my goods.'),
+    createNPC(7, 6, 'Quest Giver: Adventurers wanted!'),
+    createNPC(9, 3, 'Townsfolk: Hello there.')
+  ];
   cursors = this.input.keyboard.createCursorKeys();
   wasd = this.input.keyboard.addKeys({
     up: Phaser.Input.Keyboard.KeyCodes.W,
@@ -1024,6 +1052,13 @@ function townUpdate() {
   hero.y = Math.max(halfH, Math.min(height - halfH, hero.y));
   const heroTileX = Math.floor(hero.x / tileSize);
   const heroTileY = Math.floor(hero.y / tileSize);
+  if (interactKey && Phaser.Input.Keyboard.JustDown(interactKey)) {
+    npcs.forEach(npc => {
+      if (Phaser.Math.Distance.Between(hero.x, hero.y, npc.sprite.x, npc.sprite.y) < tileSize) {
+        showDialog(npc.dialog);
+      }
+    });
+  }
   if (heroTileX === TOWN_DOOR.x && heroTileY === TOWN_DOOR.y) {
     this.scene.start("DungeonScene", { x: DUNGEON_ENTRY.x * tileSize + tileSize / 2, y: DUNGEON_ENTRY.y * tileSize + tileSize / 2 });
     return;
@@ -1174,6 +1209,8 @@ document.addEventListener('DOMContentLoaded', () => {
   updateAttributeUI();
   updateEquipmentUI();
   updateSkillButtons();
+  const dialogBox = document.getElementById('dialogue-box');
+  if (dialogBox) dialogBox.addEventListener('click', hideDialog);
 });
 
 // expose functions for testing
@@ -1230,7 +1267,10 @@ if (typeof module !== 'undefined' && module.exports) {
     checkRespawns,
     monsterSpawns,
     RESPAWN_DELAY,
-    ELEMENT_ICONS
+    ELEMENT_ICONS,
+    showDialog,
+    hideDialog,
+    npcs
   };
 }
 

@@ -403,3 +403,18 @@
     margin: 0 5px;
   }
 }
+
+#dialogue-box {
+  position: absolute;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: variables.$text-color;
+  padding: 10px;
+  border: 1px solid variables.$text-color;
+  display: none;
+  max-width: 220px;
+  text-align: center;
+  z-index: 20;
+}

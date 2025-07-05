@@ -82,3 +82,6 @@ Add foundational abilities beyond Fireball, Double Shot, and Shield Bash.
 - Cooldown counters decrement after the enemy phase, matching current skill logic.
 - The combat UI shows each new skill with remaining cooldown.
 - The test suite covers both abilities, ensuring correct visibility and effect.
+
+### User Story 30 Notes
+The town scene now includes three NPCs: a merchant near the shop, a quest giver in the square, and a wandering townsfolk. Each NPC has a small idle motion and can be interacted with using the **E** key or by clicking them. Interaction opens a dialogue box overlay describing their role. NPCs respawn whenever the player returns to town.
